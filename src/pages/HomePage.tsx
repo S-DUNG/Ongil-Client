@@ -6,13 +6,15 @@ import {
   LocationIcon,
   MicIcon,
   SearchIcon,
+  SupportIcon,
 } from '../components/Icons'
 
 interface HomePageProps {
   onSearch: () => void
+  onEnd: () => void
 }
 
-function HomePage({ onSearch }: HomePageProps) {
+function HomePage({ onSearch, onEnd }: HomePageProps) {
   return (
     <main className="min-h-screen bg-[#F7F7F5]">
       {/* 공통 헤더 */}
@@ -91,44 +93,78 @@ function HomePage({ onSearch }: HomePageProps) {
           <section className="mt-10">
             <h2 className="text-xl font-bold">이용하기</h2>
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {/* 실시간 버스 */}
+            <div className="mt-4 space-y-3">
+              {/* 실시간 버스 도착 */}
               <button
                 type="button"
-                className="flex min-h-[120px] flex-col justify-between rounded-3xl bg-white p-5 text-left shadow-[0_3px_12px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_5px_16px_rgba(0,0,0,0.08)] active:translate-y-0"
+                className="flex min-h-[120px] w-full items-center gap-5 rounded-3xl bg-white p-5 text-left shadow-[0_3px_12px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_5px_16px_rgba(0,0,0,0.08)] active:translate-y-0"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFEEA0]">
-                  <BusIcon size={27} />
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#FFEEA0]">
+                  <BusIcon size={30} />
                 </div>
 
-                <div>
-                  <p className="text-lg font-bold">실시간 버스 도착</p>
+                <div className="flex-1">
+                  <p className="text-xl font-bold">실시간 버스 도착</p>
 
                   <p className="mt-1 text-sm text-[#777777]">
                     버스가 언제 오는지 확인
                   </p>
                 </div>
+
+                <span className="text-2xl font-bold text-[#777777]">→</span>
               </button>
 
-              {/* 도움 요청 */}
-              <button
-                type="button"
-                className="flex min-h-[120px] flex-col justify-between rounded-3xl bg-white p-5 text-left shadow-[0_3px_12px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_5px_16px_rgba(0,0,0,0.08)] active:translate-y-0"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFEEA0]">
-                  <HelpIcon size={27} />
-                </div>
+              {/* 도움 요청 + 탑승 지원 */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* 도움 요청 */}
+                <button
+                  type="button"
+                  className="flex min-h-[130px] flex-col justify-between rounded-3xl bg-white p-5 text-left shadow-[0_3px_12px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_5px_16px_rgba(0,0,0,0.08)] active:translate-y-0"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFEEA0]">
+                    <HelpIcon size={27} />
+                  </div>
 
-                <div>
-                  <p className="text-lg font-bold">도움 요청하기</p>
+                  <div>
+                    <p className="text-lg font-bold">도움 요청하기</p>
 
-                  <p className="mt-1 text-sm text-[#777777]">
-                    도움이 필요할 때
-                  </p>
-                </div>
-              </button>
+                    <p className="mt-1 text-sm text-[#777777]">
+                      도움이 필요할 때
+                    </p>
+                  </div>
+                </button>
+
+                {/* 탑승 지원 */}
+                <button
+                  type="button"
+                  className="flex min-h-[130px] flex-col justify-between rounded-3xl bg-white p-5 text-left shadow-[0_3px_12px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_5px_16px_rgba(0,0,0,0.08)] active:translate-y-0"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFEEA0]">
+                    <SupportIcon size={27} />
+                  </div>
+
+                  <div>
+                    <p className="text-lg font-bold">탑승 지원 요청</p>
+
+                    <p className="mt-1 text-sm text-[#777777]">
+                      버스 탑승에 도움이 필요할 때
+                    </p>
+                  </div>
+                </button>
+              </div>
             </div>
           </section>
+
+          {/* 이용 종료 */}
+          <button
+            type="button"
+            onClick={onEnd}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-[22px] border-2 border-[#555555] bg-white py-4 text-lg font-bold text-[#333333] shadow-[0_3px_10px_rgba(0,0,0,0.06)] transition hover:bg-[#F5F5F3] active:bg-[#EEEEEC]"
+          >
+            <span className="text-2xl leading-none">×</span>
+
+            <span>이용 종료</span>
+          </button>
         </section>
       </div>
     </main>

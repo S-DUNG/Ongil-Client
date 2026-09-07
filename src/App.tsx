@@ -9,6 +9,11 @@ export type Page = 'home' | 'search' | 'route'
 function App() {
   const [page, setPage] = useState<Page>('home')
 
+  // 이용 종료
+  const handleEnd = () => {
+    setPage('home')
+  }
+
   if (page === 'search') {
     return (
       <SearchPage
@@ -22,7 +27,7 @@ function App() {
     return <RoutePage onBack={() => setPage('search')} />
   }
 
-  return <HomePage onSearch={() => setPage('search')} />
+  return <HomePage onSearch={() => setPage('search')} onEnd={handleEnd} />
 }
 
 export default App

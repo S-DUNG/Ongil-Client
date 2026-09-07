@@ -262,3 +262,52 @@ export function HelpIcon({ size = 30, strokeWidth = 2.2 }: IconProps) {
     </svg>
   )
 }
+export function SupportIcon({ size = 30, strokeWidth = 2.2 }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <circle
+        cx="12"
+        cy="5"
+        r="2"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+      />
+
+      <path
+        d="M8 10H16"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+
+      <path
+        d="M12 7V14"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+
+      <path
+        d="M9 20L12 14L15 20"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <path
+        d="M7 14H5C3.9 14 3 14.9 3 16V18"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
