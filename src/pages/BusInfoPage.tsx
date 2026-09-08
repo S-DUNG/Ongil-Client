@@ -9,7 +9,6 @@ interface BusInfoPageProps {
   onEndSession: () => void
 }
 
-// 🔌 Swagger 응답 구조에 맞춘 타입 정의
 interface ApiArrivalBus {
   busNumber: string
   etaMinutes: number
@@ -21,19 +20,19 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
   const [busList, setBusList] = useState<ApiArrivalBus[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
-  // 🔌 [Swagger 연동 구간] GET /stations/{stationId}/arrivals?cityCode={cityCode}
   useEffect(() => {
     const fetchBusArrivals = async () => {
       try {
-        const stationId = '28184' // 광주역 정류장 ID
-        const cityCode = '24' // 광주 지역 코드 예시 (실제 값에 맞게 수정 가능)
+        // 💡 린트 에러 방지를 위해 변수 앞에 언더바(_)를 붙여두었습니다.
+        const _stationId = '28184'
+        const _cityCode = '24'
 
         // 💡 나중에 백엔드 서버가 켜지면 아래 주소의 주석을 풀고 사용하세요!
-        // const response = await fetch(`/stations/${stationId}/arrivals?cityCode=${cityCode}`)
+        // const response = await fetch(`/stations/${_stationId}/arrivals?cityCode=${_cityCode}`)
         // const data = await response.json()
         // setBusList(data)
 
-        // 🛠️ 현재는 서버가 없으므로 Swagger 응답 구조에 맞춘 임시 데이터로 시뮬레이션합니다.
+        // 🛠️ 임시 데이터(Mock Data) 시뮬레이션
         setTimeout(() => {
           setBusList([
             {
@@ -102,10 +101,8 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
 
         {/* 버스 카드 리스트 영역 */}
         <div className="flex flex-col gap-4 mb-6">
-          {/* 주요 추천 버스 카드 */}
           <PrimaryBusCard />
 
-          {/* 로딩 중일 때 표시할 문구 또는 Swagger 데이터 맵핑 */}
           {loading ? (
             <div className="bg-white rounded-2xl p-8 text-center text-gray-400 font-medium">
               실시간 버스 정보를 불러오는 중입니다...
