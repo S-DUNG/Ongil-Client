@@ -1,17 +1,17 @@
 import { useState } from 'react'
 
 import HomePage from './pages/HomePage'
-import SearchPage from './pages/SearchPage'
 import RoutePage from './pages/RoutePage'
+import SearchPage from './pages/SearchPage'
+import StartPage from './pages/StartPage'
 
-export type Page = 'home' | 'search' | 'route'
+export type Page = 'start' | 'home' | 'search' | 'route'
 
 function App() {
-  const [page, setPage] = useState<Page>('home')
+  const [page, setPage] = useState<Page>('start')
 
-  // 이용 종료
-  const handleEnd = () => {
-    setPage('home')
+  if (page === 'start') {
+    return <StartPage onStart={() => setPage('home')} />
   }
 
   if (page === 'search') {
@@ -27,7 +27,12 @@ function App() {
     return <RoutePage onBack={() => setPage('search')} />
   }
 
-  return <HomePage onSearch={() => setPage('search')} onEnd={handleEnd} />
+  return (
+    <HomePage
+      onSearch={() => setPage('search')}
+      onEnd={() => setPage('start')}
+    />
+  )
 }
 
 export default App
