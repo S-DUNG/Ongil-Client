@@ -23,14 +23,8 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
   useEffect(() => {
     const fetchBusArrivals = async () => {
       try {
-        // 💡 린트 에러 방지를 위해 변수 앞에 언더바(_)를 붙여두었습니다.
-        const _stationId = '28184'
-        const _cityCode = '24'
-
-        // 💡 나중에 백엔드 서버가 켜지면 아래 주소의 주석을 풀고 사용하세요!
-        // const response = await fetch(`/stations/${_stationId}/arrivals?cityCode=${_cityCode}`)
-        // const data = await response.json()
-        // setBusList(data)
+        // 💡 안 쓰는 변수들은 아예 지워서 린트 에러를 원천 차단했습니다.
+        // 나중에 실제 fetch 쓸 때 const stationId = "28184", cityCode = "24"를 다시 적어주시면 됩니다!
 
         // 🛠️ 임시 데이터(Mock Data) 시뮬레이션
         setTimeout(() => {
