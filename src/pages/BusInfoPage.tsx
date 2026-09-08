@@ -26,18 +26,17 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
   const [loading, setLoading] = useState<boolean>(true)
 
   // 🔌 [백엔드 연동 포인트]
-  // 명세서에 있는 GET /stations/{stationId}/arrivals API를 호출하는 구간입니다.
+  // 명세서에 있는 GET /stations/{stationId}/arrivals API 호출 구간입니다.
   useEffect(() => {
     const fetchBusArrivals = async () => {
       try {
-        const stationId = '28184' // 광주역 정류장 ID
-
         // 💡 나중에 백엔드 서버가 열리면 아래 주소로 실제 요청이 날아갑니다.
+        // const stationId = "28184" // 광주역 정류장 ID
         // const response = await fetch(`/stations/${stationId}/arrivals`)
         // const data = await response.json()
         // setBusList(data)
 
-        // 🛠️ 현재는 서버가 없으므로 API 명세 구조에 맞춘 임시 데이터(Mock Data)로 시뮬레이션합니다.
+        // 🛠️ 현재는 서버가 없으므로 임시 데이터(Mock Data)로 시뮬레이션합니다.
         setTimeout(() => {
           setBusList([
             {
