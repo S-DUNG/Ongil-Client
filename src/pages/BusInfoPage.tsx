@@ -9,57 +9,44 @@ interface BusInfoPageProps {
   onEndSession: () => void
 }
 
-interface ArrivalBus {
-  id: string
-  number: string
-  type: string
-  direction: string
-  isLowFloor: boolean
-  route: string
-  congestion: string
-  time: string
-  stopsLeft: string
+// 🔌 Swagger 응답 구조에 맞춘 타입 정의
+interface ApiArrivalBus {
+  busNumber: string
+  etaMinutes: number
+  etaSeconds: number
+  remainingStop: number
 }
 
 const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
-  const [busList, setBusList] = useState<ArrivalBus[]>([])
+  const [busList, setBusList] = useState<ApiArrivalBus[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
-  // 🔌 [백엔드 연동 포인트]
-  // 명세서에 있는 GET /stations/{stationId}/arrivals API 호출 구간입니다.
+  // 🔌 [Swagger 연동 구간] GET /stations/{stationId}/arrivals?cityCode={cityCode}
   useEffect(() => {
     const fetchBusArrivals = async () => {
       try {
-        // 💡 나중에 백엔드 서버가 열리면 아래 주소로 실제 요청이 날아갑니다.
-        // const stationId = "28184" // 광주역 정류장 ID
-        // const response = await fetch(`/stations/${stationId}/arrivals`)
+        const stationId = '28184' // 광주역 정류장 ID
+        const cityCode = '24' // 광주 지역 코드 예시 (실제 값에 맞게 수정 가능)
+
+        // 💡 나중에 백엔드 서버가 켜지면 아래 주소의 주석을 풀고 사용하세요!
+        // const response = await fetch(`/stations/${stationId}/arrivals?cityCode=${cityCode}`)
         // const data = await response.json()
         // setBusList(data)
 
-        // 🛠️ 현재는 서버가 없으므로 임시 데이터(Mock Data)로 시뮬레이션합니다.
+        // 🛠️ 현재는 서버가 없으므로 Swagger 응답 구조에 맞춘 임시 데이터로 시뮬레이션합니다.
         setTimeout(() => {
           setBusList([
             {
-              id: '1',
-              number: '19',
-              type: '간선',
-              direction: '송정역 방면',
-              isLowFloor: true,
-              route: '경유: 양동시장역 · 농성역 · 상무지구',
-              congestion: '혼잡도 여유 (교통약자석 3석)',
-              time: '8',
-              stopsLeft: '5개 정류장 전 (운암도서관)',
+              busNumber: '19',
+              etaMinutes: 8,
+              etaSeconds: 40,
+              remainingStop: 5,
             },
             {
-              id: '2',
-              number: '09',
-              type: '지선',
-              direction: '첨단산단 방면',
-              isLowFloor: false,
-              route: '경유: 북구청 · 전남대후문 · 첨단2지구',
-              congestion: '혼잡도 보통 (배려석 1석)',
-              time: '15',
-              stopsLeft: '9개 정류장 전',
+              busNumber: '09',
+              etaMinutes: 15,
+              etaSeconds: 12,
+              remainingStop: 9,
             },
           ])
           setLoading(false)
@@ -118,23 +105,23 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
           {/* 주요 추천 버스 카드 */}
           <PrimaryBusCard />
 
-          {/* 로딩 중일 때 표시할 문구 또는 데이터 렌더링 */}
+          {/* 로딩 중일 때 표시할 문구 또는 Swagger 데이터 맵핑 */}
           {loading ? (
             <div className="bg-white rounded-2xl p-8 text-center text-gray-400 font-medium">
               실시간 버스 정보를 불러오는 중입니다...
             </div>
           ) : (
-            busList.map((bus) => (
+            busList.map((bus, index) => (
               <RegularBusCard
-                key={bus.id}
-                number={bus.number}
-                type={bus.type}
-                direction={bus.direction}
-                isLowFloor={bus.isLowFloor}
-                route={bus.route}
-                congestion={bus.congestion}
-                time={bus.time}
-                stopsLeft={bus.stopsLeft}
+                key={index}
+                number={bus.busNumber}
+                type="간선"
+                direction="방면 정보"
+                isLowFloor={true}
+                route="백엔드 연동 대기 중"
+                congestion="혼잡도 보통"
+                time={String(bus.etaMinutes)}
+                stopsLeft={`${bus.remainingStop}개 정류장 전`}
               />
             ))
           )}
