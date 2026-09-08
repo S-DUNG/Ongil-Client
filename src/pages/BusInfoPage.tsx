@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '../components/Header'
 import BackButton from '../components/BackButton'
 import PrimaryBusCard from '../components/PrimaryBusCard'
@@ -9,7 +9,71 @@ interface BusInfoPageProps {
   onEndSession: () => void
 }
 
+interface ArrivalBus {
+  id: string
+  number: string
+  type: string
+  direction: string
+  isLowFloor: boolean
+  route: string
+  congestion: string
+  time: string
+  stopsLeft: string
+}
+
 const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
+  const [busList, setBusList] = useState<ArrivalBus[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+
+  // 🔌 [백엔드 연동 포인트]
+  // 명세서에 있는 GET /stations/{stationId}/arrivals API를 호출하는 구간입니다.
+  useEffect(() => {
+    const fetchBusArrivals = async () => {
+      try {
+        const stationId = '28184' // 광주역 정류장 ID
+
+        // 💡 나중에 백엔드 서버가 열리면 아래 주소로 실제 요청이 날아갑니다.
+        // const response = await fetch(`/stations/${stationId}/arrivals`)
+        // const data = await response.json()
+        // setBusList(data)
+
+        // 🛠️ 현재는 서버가 없으므로 API 명세 구조에 맞춘 임시 데이터(Mock Data)로 시뮬레이션합니다.
+        setTimeout(() => {
+          setBusList([
+            {
+              id: '1',
+              number: '19',
+              type: '간선',
+              direction: '송정역 방면',
+              isLowFloor: true,
+              route: '경유: 양동시장역 · 농성역 · 상무지구',
+              congestion: '혼잡도 여유 (교통약자석 3석)',
+              time: '8',
+              stopsLeft: '5개 정류장 전 (운암도서관)',
+            },
+            {
+              id: '2',
+              number: '09',
+              type: '지선',
+              direction: '첨단산단 방면',
+              isLowFloor: false,
+              route: '경유: 북구청 · 전남대후문 · 첨단2지구',
+              congestion: '혼잡도 보통 (배려석 1석)',
+              time: '15',
+              stopsLeft: '9개 정류장 전',
+            },
+          ])
+          setLoading(false)
+        }, 500)
+      } catch (error) {
+        console.error('버스 도착 정보를 불러오는데 실패했습니다:', error)
+        setLoading(false)
+      }
+    }
+
+    fetchBusArrivals()
+  }, [])
+
   return (
     <div className="w-full min-h-screen bg-[#FBFBFB] flex flex-col items-center pb-24 font-sans relative">
       {/* 상단 공통 헤더 */}
@@ -50,32 +114,34 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
           </div>
         </div>
 
+        {/* 버스 카드 리스트 영역 */}
         <div className="flex flex-col gap-4 mb-6">
+          {/* 주요 추천 버스 카드 */}
           <PrimaryBusCard />
 
-          <RegularBusCard
-            number="19"
-            type="간선"
-            direction="송정역 방면"
-            isLowFloor={true}
-            route="경유: 양동시장역 · 농성역 · 상무지구"
-            congestion="혼잡도 여유 (교통약자석 3석)"
-            time="8"
-            stopsLeft="5개 정류장 전 (운암도서관)"
-          />
-
-          <RegularBusCard
-            number="09"
-            type="지선"
-            direction="첨단산단 방면"
-            isLowFloor={false}
-            route="경유: 북구청 · 전남대후문 · 첨단2지구"
-            congestion="혼잡도 보통 (배려석 1석)"
-            time="15"
-            stopsLeft="9개 정류장 전"
-          />
+          {/* 로딩 중일 때 표시할 문구 또는 데이터 렌더링 */}
+          {loading ? (
+            <div className="bg-white rounded-2xl p-8 text-center text-gray-400 font-medium">
+              실시간 버스 정보를 불러오는 중입니다...
+            </div>
+          ) : (
+            busList.map((bus) => (
+              <RegularBusCard
+                key={bus.id}
+                number={bus.number}
+                type={bus.type}
+                direction={bus.direction}
+                isLowFloor={bus.isLowFloor}
+                route={bus.route}
+                congestion={bus.congestion}
+                time={bus.time}
+                stopsLeft={bus.stopsLeft}
+              />
+            ))
+          )}
         </div>
 
+        {/* 하단 혼잡도 차트 */}
         <div>
           <CongestionChart />
         </div>
