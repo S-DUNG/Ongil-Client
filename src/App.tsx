@@ -10,10 +10,12 @@ export type Page = 'start' | 'home' | 'search' | 'route'
 function App() {
   const [page, setPage] = useState<Page>('start')
 
+  // 시작 화면
   if (page === 'start') {
     return <StartPage onStart={() => setPage('home')} />
   }
 
+  // 목적지 검색 화면
   if (page === 'search') {
     return (
       <SearchPage
@@ -23,13 +25,16 @@ function App() {
     )
   }
 
+  // 경로 안내 화면
   if (page === 'route') {
     return <RoutePage onBack={() => setPage('search')} />
   }
 
+  // 메인 화면
   return (
     <HomePage
       onSearch={() => setPage('search')}
+      onHelp={() => {}}
       onEnd={() => setPage('start')}
     />
   )

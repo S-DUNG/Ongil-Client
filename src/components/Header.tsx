@@ -18,7 +18,7 @@ function Header() {
           <div className="flex items-center gap-4">
             {/* 현재 위치 */}
             <div className="flex items-center gap-2">
-              <LocationIcon size={22} color="#66563F" />
+              <LocationIcon size={22} />
 
               <span className="text-base font-semibold text-[#66563F]">
                 광주
@@ -30,7 +30,7 @@ function Header() {
 
             {/* 날씨 */}
             <div className="flex items-center gap-2">
-              <WeatherIcon size={23} color="#66563F" />
+              <WeatherIcon size={23} />
 
               <span className="text-lg font-bold text-[#66563F]">24°</span>
             </div>
