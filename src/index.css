@@ -1,1 +1,39 @@
 @import 'tailwindcss';
+
+:root {
+  font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
+  color: #695c4a;
+  background: #f7f3ec;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  background-color: #f7f3ec !important;
+  color: #695c4a !important;
+}
+
+body {
+  min-width: 320px;
+  background: #f7f3ec !important;
+  color: #695c4a !important;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+input::placeholder {
+  color: #999999;
+}
