@@ -1,4 +1,5 @@
 import React from 'react'
+import { Lightbulb } from 'lucide-react'
 import Header from '../components/Header'
 import SubNavbar from '../components/SubNavbar'
 
@@ -107,8 +108,9 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
             ))}
           </div>
 
+          {/* 💡 전구 SVG 아이콘이 적용된 팁 박스 */}
           <div className="bg-[#FFFDEB] border-2 border-[#E3C37A] rounded-2xl p-5 flex items-start gap-3">
-            <span className="text-xl">💡</span>
+            <Lightbulb className="w-6 h-6 text-[#695C4A] shrink-0 mt-0.5" />
             <div>
               <h4 className="font-bold text-[#695C4A] text-base mb-1">
                 참고해 주세요!

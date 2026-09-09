@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Accessibility, BarChart3, Clock, RefreshCw } from 'lucide-react'
 import Header from '../components/Header'
 import BackButton from '../components/BackButton'
 
@@ -87,8 +88,9 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         </div>
 
         <div className="flex justify-between items-center mb-4 text-[13px] font-medium px-1">
-          <div className="text-[#8C7A60] flex items-center gap-1">
-            <span>↻</span> 실시간 버스 도착 정보 (10분마다 갱신)
+          <div className="text-[#8C7A60] flex items-center gap-1.5">
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> 실시간 버스 도착
+            정보 (10분마다 갱신)
           </div>
           <div className="text-[#2F6D4F] flex items-center gap-1.5 font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 정상
@@ -96,11 +98,12 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
           </div>
         </div>
 
-        {/* 🌟 1. 곧 도착 예정 버스 (주요 추천 카드 - 흰색 배경) */}
+        {/* 1. 곧 도착 예정 버스 (주요 추천 카드) */}
         <div className="bg-white rounded-[28px] p-6 shadow-sm border-2 border-[#E3C37A] mb-5">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2 text-[#695C4A] font-bold text-sm">
-              <span>⏱️</span> 곧 도착 예정 버스 (주요 추천)
+              <Clock className="w-4 h-4 text-[#695C4A]" /> 곧 도착 예정 버스
+              (주요 추천)
             </div>
             <span className="text-xs font-semibold bg-[#FFFDEB] text-[#7A6321] px-3 py-1 rounded-full border border-[#E3C37A]">
               2번째 전 정류소 통과
@@ -120,8 +123,9 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
                   <h2 className="text-xl font-bold text-[#695C4A]">
                     수완지구 방면
                   </h2>
-                  <span className="text-xs font-bold bg-[#F7F3EC] text-[#7A6A53] px-2.5 py-1 rounded-md border border-[#E8E2D5]">
-                    ♿ 저상 운행
+                  <span className="text-xs font-bold bg-[#F7F3EC] text-[#7A6A53] px-2.5 py-1 rounded-md border border-[#E8E2D5] flex items-center gap-1">
+                    <Accessibility className="w-3.5 h-3.5 text-[#695C4A]" />{' '}
+                    저상 운행
                   </span>
                 </div>
                 <p className="text-xs text-[#8C7A60] mt-1.5">
@@ -152,8 +156,8 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
               <span className="text-[11px] text-[#8C7A60] block mb-1">
                 교통약자석
               </span>
-              <span className="text-xs font-bold text-[#695C4A]">
-                ♿ 여유 (4석)
+              <span className="text-xs font-bold text-[#695C4A] flex items-center justify-center gap-1">
+                <Accessibility className="w-3.5 h-3.5" /> 여유 (4석)
               </span>
             </div>
             <div className="bg-[#F7F3EC] p-3 rounded-xl border border-[#E8E2D5] text-center">
@@ -167,7 +171,7 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
           </div>
         </div>
 
-        {/* 🌟 2. 일반 버스 카드 리스트 (흰색 배경) */}
+        {/* 2. 일반 버스 카드 리스트 */}
         <div className="flex flex-col gap-4 mb-6">
           {loading ? (
             <div className="bg-white rounded-2xl p-8 text-center text-[#9E8B70] font-medium border border-[#E8E2D5]">
@@ -193,8 +197,11 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
                       <h3 className="text-lg font-bold text-[#695C4A]">
                         {bus.direction}
                       </h3>
-                      <span className="text-[11px] font-bold bg-[#F7F3EC] text-[#7A6A53] px-2 py-0.5 rounded border border-[#E8E2D5]">
-                        {bus.isLowFloor ? '♿ 저상 운행' : '일반 버스'}
+                      <span className="text-[11px] font-bold bg-[#F7F3EC] text-[#7A6A53] px-2 py-0.5 rounded border border-[#E8E2D5] flex items-center gap-1 inline-flex">
+                        {bus.isLowFloor && (
+                          <Accessibility className="w-3 h-3 text-[#695C4A]" />
+                        )}
+                        {bus.isLowFloor ? '저상 운행' : '일반 버스'}
                       </span>
                     </div>
                     <p className="text-xs text-[#8C7A60] mt-1">{bus.route}</p>
@@ -221,11 +228,12 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
           )}
         </div>
 
-        {/* 🌟 3. 하단 시간대별 예상 혼잡도 안내 (흰색 배경) */}
+        {/* 3. 하단 시간대별 예상 혼잡도 안내 */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#E8E2D5] mb-8">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-bold text-[#695C4A] text-base flex items-center gap-2">
-              <span>📊</span> 시간대별 예상 혼잡도 안내
+              <BarChart3 className="w-5 h-5 text-[#695C4A]" /> 시간대별 예상
+              혼잡도 안내
             </h3>
             <span className="text-xs text-[#7A6321] font-medium bg-[#FFFDEB] px-3 py-1 rounded-full border border-[#E3C37A]">
               광주역 정류소 통계 데이터 기반
