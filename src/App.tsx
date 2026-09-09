@@ -1,59 +1,56 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import StartPage from './pages/StartPage'
+import HelpRequestPage from './pages/HelpRequestPage'
+import HelpGuidePage from './pages/HelpGuidePage'
 import BusInfoPage from './pages/BusInfoPage'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<'start' | 'bus'>('start')
+  const [currentPage, setCurrentPage] = useState<
+    'start' | 'help' | 'guide' | 'busInfo'
+  >('start')
+  const [selectedGuideId, setSelectedGuideId] = useState<number>(1)
 
-  // 30초 동안 조작 없으면 홈 화면으로 돌아가는 자동 초기화 기능
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>
-
-    const resetTimer = () => {
-      clearTimeout(timeoutId)
-      if (currentPage !== 'start') {
-        timeoutId = setTimeout(() => {
-          setCurrentPage('start')
-        }, 30000)
-      }
+  const handleNavigate = (
+    page: 'bus' | 'route' | 'help' | 'guide',
+    id?: number,
+  ) => {
+    if (page === 'bus') {
+      setCurrentPage('busInfo')
+    } else if (page === 'guide') {
+      if (id) setSelectedGuideId(id)
+      setCurrentPage('guide')
+    } else if (page === 'help') {
+      setCurrentPage('help')
     }
+  }
 
-    window.addEventListener('mousemove', resetTimer)
-    window.addEventListener('touchstart', resetTimer)
-    window.addEventListener('click', resetTimer)
-    window.addEventListener('scroll', resetTimer)
-
-    resetTimer()
-
-    return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('mousemove', resetTimer)
-      window.removeEventListener('touchstart', resetTimer)
-      window.removeEventListener('click', resetTimer)
-      window.removeEventListener('scroll', resetTimer)
-    }
-  }, [currentPage])
+  const handleEndSession = () => {
+    setCurrentPage('start')
+  }
 
   return (
-    <div className="w-full min-h-screen bg-[#FBFBFB] font-sans text-gray-900 select-none">
-      {/* 1. 홈 화면 (시작 페이지) */}
+    <div className="w-full min-h-screen bg-[#F7F3EC] text-[#695C4A]">
       {currentPage === 'start' && (
-        <StartPage
-          onStart={() => {
-            console.log('시작 버튼 클릭됨! 버스 페이지로 이동합니다.')
-            setCurrentPage('bus')
-          }}
+        <StartPage onStart={() => setCurrentPage('help')} />
+      )}
+
+      {currentPage === 'help' && (
+        <HelpRequestPage
+          onNavigate={handleNavigate}
+          onEndSession={handleEndSession}
         />
       )}
 
-      {/* 2. 버스 정보 화면 */}
-      {currentPage === 'bus' && (
-        <BusInfoPage
-          onEndSession={() => {
-            console.log('이용 종료 클릭됨! 홈으로 이동합니다.')
-            setCurrentPage('start')
-          }}
+      {currentPage === 'guide' && (
+        <HelpGuidePage
+          selectedId={selectedGuideId}
+          onNavigate={handleNavigate}
+          onEndSession={handleEndSession}
         />
+      )}
+
+      {currentPage === 'busInfo' && (
+        <BusInfoPage onEndSession={handleEndSession} />
       )}
     </div>
   )
