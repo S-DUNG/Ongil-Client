@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Lightbulb } from 'lucide-react'
 import StartPage from './pages/StartPage'
 import HelpRequestPage from './pages/HelpRequestPage'
 import HelpGuidePage from './pages/HelpGuidePage'
