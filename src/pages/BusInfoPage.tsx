@@ -9,54 +9,95 @@ interface BusInfoPageProps {
 
 interface ApiArrivalBus {
   busNumber: string
-  type: string
-  direction: string
   etaMinutes: number
+  etaSeconds: number
   remainingStop: number
-  route: string
-  congestion: string
-  isLowFloor: boolean
+  type?: string
+  direction?: string
+  isLowFloor?: boolean
+  route?: string
+  congestion?: string
+}
+interface Station {
+  stationId: string
+  name: string
+  lat: number
+  lng: number
+  distanceMeters: number
+  tagoNodeId: string | null
+  tagoCityCode: string | null
 }
 
 const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
+  console.log('BusInfoPage 실행됨')
   const [busList, setBusList] = useState<ApiArrivalBus[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-
+  const [selectedStation, setSelectedStation] = useState<Station | null>(null)
   useEffect(() => {
-    const fetchBusArrivals = async () => {
+    const fetchBusInfo = async () => {
       try {
-        setTimeout(() => {
-          setBusList([
-            {
-              busNumber: '19',
-              type: '간선',
-              direction: '송정역 방면',
-              etaMinutes: 8,
-              remainingStop: 5,
-              route: '경유: 양동시장역 · 농성역 · 상무지구',
-              congestion: '혼잡도 여유 (교통약자석 3석)',
-              isLowFloor: true,
-            },
-            {
-              busNumber: '09',
-              type: '지선',
-              direction: '첨단산단 방면',
-              etaMinutes: 15,
-              remainingStop: 9,
-              route: '경유: 북구청 · 전남대후문 · 첨단2지구',
-              congestion: '혼잡도 보통 (배려석 1석)',
-              isLowFloor: false,
-            },
-          ])
-          setLoading(false)
-        }, 500)
+        const position = await new Promise<GeolocationPosition>(
+          (resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject)
+          },
+        )
+
+        const { latitude, longitude } = position.coords
+
+        const stationResponse = await fetch(
+          `http://54.116.242.126:8080/stations/nearby?lat=${latitude}&lng=${longitude}`,
+        )
+
+        if (!stationResponse.ok) {
+          throw new Error('주변 정류장 정보를 불러오는데 실패했습니다.')
+        }
+
+        const stations: Station[] = await stationResponse.json()
+
+        console.log('주변 정류장:', stations)
+
+        if (stations.length === 0) {
+          setBusList([])
+          return
+        }
+
+        const station = [...stations].sort(
+          (a, b) => a.distanceMeters - b.distanceMeters,
+        )[0]
+
+        setSelectedStation(station)
+
+        console.log('선택된 정류장:', station)
+
+        if (!station.tagoNodeId || !station.tagoCityCode) {
+          setBusList([])
+          return
+        }
+
+        const arrivalResponse = await fetch(
+          `http://54.116.242.126:8080/stations/${encodeURIComponent(
+            station.tagoNodeId,
+          )}/arrivals?cityCode=${encodeURIComponent(station.tagoCityCode)}`,
+        )
+
+        if (!arrivalResponse.ok) {
+          throw new Error('버스 도착 정보를 불러오는데 실패했습니다.')
+        }
+
+        const data: ApiArrivalBus[] = await arrivalResponse.json()
+
+        console.log('버스 도착정보:', data)
+
+        setBusList(data)
       } catch (error) {
-        console.error('버스 도착 정보를 불러오는데 실패했습니다:', error)
+        console.error('버스 정보를 불러오는데 실패했습니다:', error)
+        setBusList([])
+      } finally {
         setLoading(false)
       }
     }
 
-    fetchBusArrivals()
+    fetchBusInfo()
   }, [])
 
   return (
@@ -81,10 +122,11 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
               실시간 버스 정보
             </h1>
           </div>
-          <div className="bg-white border border-[#E8E2D5] text-[#7A6A53] px-4 py-2 rounded-full text-[14px] font-bold shadow-sm flex items-center gap-1.5">
+          {/* <div className="bg-white border border-[#E8E2D5] text-[#7A6A53] px-4 py-2 rounded-full text-[14px] font-bold shadow-sm flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#695C4A]"></span>
             광주역 정류장 <span className="text-[#695C4A]">28104</span>
           </div>
+          */}
         </div>
 
         <div className="flex justify-between items-center mb-4 text-[13px] font-medium px-1">
