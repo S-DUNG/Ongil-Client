@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import { Accessibility, BarChart3, Clock, RefreshCw } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import {
+  Accessibility,
+  BarChart3,
+  Clock,
+  MapPin,
+  RefreshCw,
+} from 'lucide-react'
 import Header from '../components/Header'
 import BackButton from '../components/BackButton'
 
@@ -18,6 +24,7 @@ interface ApiArrivalBus {
   route?: string
   congestion?: string
 }
+
 interface Station {
   stationId: string
   name: string
@@ -28,11 +35,40 @@ interface Station {
   tagoCityCode: string | null
 }
 
+interface CongestionForecast {
+  hour: number
+  status: string
+}
+
+interface TimePeriod {
+  title: string
+  time: string
+  startHour: number
+  endHour: number
+}
+
 const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
-  console.log('BusInfoPage 실행됨')
   const [busList, setBusList] = useState<ApiArrivalBus[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState(true)
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [congestionForecast, setCongestionForecast] = useState<
+    CongestionForecast[]
+  >([])
+  const [congestionLoading, setCongestionLoading] = useState(true)
+
+  useEffect(() => {
+    const updateTime = () => {
+      setCurrentTime(new Date())
+    }
+
+    updateTime()
+
+    const timer = setInterval(updateTime, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
   useEffect(() => {
     const fetchBusInfo = async () => {
       try {
@@ -43,6 +79,8 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         )
 
         const { latitude, longitude } = position.coords
+
+        console.log('GPS:', latitude, longitude)
 
         const stationResponse = await fetch(
           `http://54.116.242.126:8080/stations/nearby?lat=${latitude}&lng=${longitude}`,
@@ -58,6 +96,7 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
 
         if (stations.length === 0) {
           setBusList([])
+          setCongestionForecast([])
           return
         }
 
@@ -68,6 +107,27 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         setSelectedStation(station)
 
         console.log('선택된 정류장:', station)
+
+        const congestionResponse = await fetch(
+          `http://54.116.242.126:8080/stations/${encodeURIComponent(
+            station.stationId,
+          )}/congestion-forecast`,
+        )
+
+        if (congestionResponse.ok) {
+          const congestionData: CongestionForecast[] =
+            await congestionResponse.json()
+
+          console.log('시간대별 혼잡도:', congestionData)
+
+          setCongestionForecast(congestionData)
+        } else {
+          console.error('혼잡도 API 상태:', congestionResponse.status)
+
+          setCongestionForecast([])
+        }
+
+        setCongestionLoading(false)
 
         if (!station.tagoNodeId || !station.tagoCityCode) {
           setBusList([])
@@ -87,11 +147,23 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         const data: ApiArrivalBus[] = await arrivalResponse.json()
 
         console.log('버스 도착정보:', data)
+        console.log('버스 도착정보 개수:', data.length)
 
-        setBusList(data)
+        const sortedBusList = [...data].sort(
+          (a, b) =>
+            a.etaMinutes * 60 +
+            a.etaSeconds -
+            (b.etaMinutes * 60 + b.etaSeconds),
+        )
+
+        console.log('정렬된 버스:', sortedBusList)
+
+        setBusList(sortedBusList)
       } catch (error) {
         console.error('버스 정보를 불러오는데 실패했습니다:', error)
         setBusList([])
+        setCongestionForecast([])
+        setCongestionLoading(false)
       } finally {
         setLoading(false)
       }
@@ -99,6 +171,113 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
 
     fetchBusInfo()
   }, [])
+
+  const recommendedBus = busList[0]
+  const otherBusList = busList.slice(1)
+
+  const formattedTime = currentTime.toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+
+  const getCongestionLabel = (status?: string) => {
+    switch (status) {
+      case 'NORMAL':
+        return '여유'
+      case 'CAUTION':
+        return '보통'
+      case 'CROWDED':
+        return '혼잡'
+      case 'VERY_CROWDED':
+        return '매우 혼잡'
+      default:
+        return '정보 없음'
+    }
+  }
+
+  const getCongestionPercent = (status?: string) => {
+    switch (status) {
+      case 'NORMAL':
+        return 25
+      case 'CAUTION':
+        return 50
+      case 'CROWDED':
+        return 75
+      case 'VERY_CROWDED':
+        return 95
+      default:
+        return 0
+    }
+  }
+
+  const getCongestionClass = (status?: string) => {
+    switch (status) {
+      case 'NORMAL':
+        return 'text-emerald-600'
+      case 'CAUTION':
+        return 'text-amber-600'
+      case 'CROWDED':
+        return 'text-orange-600'
+      case 'VERY_CROWDED':
+        return 'text-red-600'
+      default:
+        return 'text-[#8C7A60]'
+    }
+  }
+
+  const getCongestionData = (
+    startHour: number,
+    endHour: number,
+  ): CongestionForecast | null => {
+    const data = congestionForecast.filter(
+      (item) => item.hour >= startHour && item.hour <= endHour,
+    )
+
+    if (data.length === 0) {
+      return null
+    }
+
+    const priority: Record<string, number> = {
+      NORMAL: 1,
+      CAUTION: 2,
+      CROWDED: 3,
+      VERY_CROWDED: 4,
+    }
+
+    return data.reduce((worst, current) => {
+      return (priority[current.status] || 0) > (priority[worst.status] || 0)
+        ? current
+        : worst
+    })
+  }
+
+  const timePeriods: TimePeriod[] = [
+    {
+      title: '출근 시간대',
+      time: '07~09시',
+      startHour: 7,
+      endHour: 9,
+    },
+    {
+      title: '오전 시간대',
+      time: '10~12시',
+      startHour: 10,
+      endHour: 12,
+    },
+    {
+      title: '낮 시간대',
+      time: '13~16시',
+      startHour: 13,
+      endHour: 16,
+    },
+    {
+      title: '퇴근 시간대',
+      time: '18~20시',
+      startHour: 18,
+      endHour: 20,
+    },
+  ]
 
   return (
     <div className="w-full min-h-screen bg-[#F7F3EC] flex flex-col items-center pb-24 font-sans relative text-[#695C4A]">
@@ -118,228 +297,259 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <BackButton onClick={onEndSession} />
+
             <h1 className="text-[26px] font-extrabold tracking-tight text-[#695C4A]">
               실시간 버스 정보
             </h1>
           </div>
-          {/* <div className="bg-white border border-[#E8E2D5] text-[#7A6A53] px-4 py-2 rounded-full text-[14px] font-bold shadow-sm flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#695C4A]"></span>
-            광주역 정류장 <span className="text-[#695C4A]">28104</span>
-          </div>
-          */}
         </div>
 
-        <div className="flex justify-between items-center mb-4 text-[13px] font-medium px-1">
-          <div className="text-[#8C7A60] flex items-center gap-1.5">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> 실시간 버스 도착
-            정보 (10분마다 갱신)
-          </div>
-          <div className="text-[#2F6D4F] flex items-center gap-1.5 font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 정상
-            운영 · 현재 14:25
-          </div>
-        </div>
-
-        {/* 1. 곧 도착 예정 버스 (주요 추천 카드) */}
-        <div className="bg-white rounded-[28px] p-6 shadow-sm border-2 border-[#E3C37A] mb-5">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2 text-[#695C4A] font-bold text-sm">
-              <Clock className="w-4 h-4 text-[#695C4A]" /> 곧 도착 예정 버스
-              (주요 추천)
+        <div className="flex justify-between items-end mb-4 text-[13px] font-medium px-1">
+          <div>
+            <div className="flex items-center gap-1.5 text-[#695C4A] font-bold text-base">
+              <MapPin className="w-4 h-4 text-[#695C4A]" />
+              {selectedStation?.name || '주변 정류장'}
             </div>
-            <span className="text-xs font-semibold bg-[#FFFDEB] text-[#7A6321] px-3 py-1 rounded-full border border-[#E3C37A]">
-              2번째 전 정류소 통과
-            </span>
+
+            <div className="text-[#8C7A60] flex items-center gap-1.5 mt-1">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              실시간 버스 도착 정보 (10분마다 갱신)
+            </div>
           </div>
 
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-[72px] h-[72px] rounded-2xl bg-[#695C4A] text-[#FFEEA0] flex flex-col items-center justify-center shadow-sm">
-                <span className="text-2xl font-black leading-none">123</span>
-                <span className="text-[11px] font-medium mt-1 text-[#FFEEA0]">
-                  간선
-                </span>
+          <div className="text-[#2F6D4F] flex items-center gap-1.5 font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            정상 운영 · 현재 {formattedTime}
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="bg-white rounded-[28px] p-8 text-center text-[#9E8B70] font-medium border border-[#E8E2D5] mb-5">
+            실시간 버스 정보를 불러오는 중입니다...
+          </div>
+        ) : recommendedBus ? (
+          <div className="bg-white rounded-[28px] p-6 shadow-sm border-2 border-[#E3C37A] mb-5">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2 text-[#695C4A] font-bold text-sm">
+                <Clock className="w-4 h-4 text-[#695C4A]" />
+                가장 빠른 버스
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-[#695C4A]">
-                    수완지구 방면
-                  </h2>
-                  <span className="text-xs font-bold bg-[#F7F3EC] text-[#7A6A53] px-2.5 py-1 rounded-md border border-[#E8E2D5] flex items-center gap-1">
-                    <Accessibility className="w-3.5 h-3.5 text-[#695C4A]" />{' '}
-                    저상 운행
+
+              <span className="text-xs font-semibold bg-[#FFFDEB] text-[#7A6321] px-3 py-1 rounded-full border border-[#E3C37A]">
+                {recommendedBus.remainingStop}개 정류장 전
+              </span>
+            </div>
+
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-[125px] h-[82px] rounded-2xl bg-[#695C4A] text-[#FFEEA0] flex flex-col items-center justify-center shadow-sm flex-shrink-0">
+                  <span className="text-2xl font-black leading-none whitespace-nowrap">
+                    {recommendedBus.busNumber}
+                  </span>
+
+                  <span className="text-[11px] font-medium mt-1 text-[#FFEEA0]">
+                    {recommendedBus.type || '버스'}
                   </span>
                 </div>
-                <p className="text-xs text-[#8C7A60] mt-1.5">
-                  주요 경유: 광주기아챔피언스필드 · 광천터미널 · 운암시장
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-black text-red-600">
-                약 <span className="text-3xl">3</span>분 후 도착
-              </div>
-              <p className="text-xs text-[#8C7A60] mt-1">
-                도착 임박 (북성중 통과)
-              </p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-[#F7F3EC] p-3 rounded-xl border border-[#E8E2D5] text-center">
-              <span className="text-[11px] text-[#8C7A60] block mb-1">
-                저상버스 여부
-              </span>
-              <span className="text-xs font-bold text-emerald-700 flex items-center justify-center gap-1">
-                ✓ 저상 운행
-              </span>
-            </div>
-            <div className="bg-[#F7F3EC] p-3 rounded-xl border border-[#E8E2D5] text-center">
-              <span className="text-[11px] text-[#8C7A60] block mb-1">
-                교통약자석
-              </span>
-              <span className="text-xs font-bold text-[#695C4A] flex items-center justify-center gap-1">
-                <Accessibility className="w-3.5 h-3.5" /> 여유 (4석)
-              </span>
-            </div>
-            <div className="bg-[#F7F3EC] p-3 rounded-xl border border-[#E8E2D5] text-center">
-              <span className="text-[11px] text-[#8C7A60] block mb-1">
-                실시간 혼잡도
-              </span>
-              <span className="text-xs font-bold text-[#695C4A]">
-                ● 보통 (여유)
-              </span>
-            </div>
-          </div>
-        </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-[#695C4A] whitespace-nowrap">
+                      {recommendedBus.direction || '방면 정보 없음'}
+                    </h2>
 
-        {/* 2. 일반 버스 카드 리스트 */}
-        <div className="flex flex-col gap-4 mb-6">
-          {loading ? (
-            <div className="bg-white rounded-2xl p-8 text-center text-[#9E8B70] font-medium border border-[#E8E2D5]">
-              실시간 버스 정보를 불러오는 중입니다...
-            </div>
-          ) : (
-            busList.map((bus, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-3xl p-5 shadow-sm border border-[#E8E2D5] flex items-center justify-between"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#F7F3EC] border border-[#E8E2D5] text-[#695C4A] flex flex-col items-center justify-center">
-                    <span className="text-lg font-black leading-none">
-                      {bus.busNumber}
-                    </span>
-                    <span className="text-[10px] font-semibold text-[#8C7A60] mt-0.5">
-                      {bus.type}
+                    <span className="text-xs font-bold bg-[#F7F3EC] text-[#7A6A53] px-2.5 py-1 rounded-md border border-[#E8E2D5] flex items-center gap-1 whitespace-nowrap">
+                      {recommendedBus.isLowFloor && (
+                        <Accessibility className="w-3.5 h-3.5 text-[#695C4A]" />
+                      )}
+
+                      {recommendedBus.isLowFloor ? '저상 운행' : '일반 버스'}
                     </span>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-[#695C4A]">
-                        {bus.direction}
-                      </h3>
-                      <span className="text-[11px] font-bold bg-[#F7F3EC] text-[#7A6A53] px-2 py-0.5 rounded border border-[#E8E2D5] flex items-center gap-1 inline-flex">
-                        {bus.isLowFloor && (
-                          <Accessibility className="w-3 h-3 text-[#695C4A]" />
-                        )}
-                        {bus.isLowFloor ? '저상 운행' : '일반 버스'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#8C7A60] mt-1">{bus.route}</p>
-                    <p className="text-xs text-[#7A6A53] mt-0.5 font-medium">
-                      {bus.congestion}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-[#695C4A]">
-                    약{' '}
-                    <span className="text-xl font-black text-red-600">
-                      {bus.etaMinutes}
-                    </span>{' '}
-                    분 후
-                  </div>
-                  <p className="text-xs text-[#8C7A60] mt-1">
-                    {bus.remainingStop}개 정류장 전 (
-                    {index === 0 ? '운행 중' : '정상 운행'})
+
+                  <p className="text-xs text-[#8C7A60] mt-1.5">
+                    {recommendedBus.route || '노선 정보 없음'}
                   </p>
                 </div>
               </div>
-            ))
-          )}
+
+              <div className="text-right flex-shrink-0 ml-4">
+                <div className="text-2xl font-black text-red-600 whitespace-nowrap">
+                  약{' '}
+                  <span className="text-3xl">{recommendedBus.etaMinutes}</span>{' '}
+                  분 후 도착
+                </div>
+
+                <p className="text-xs text-[#8C7A60] mt-1">
+                  {recommendedBus.remainingStop}개 정류장 전
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-[#F7F3EC] p-3 rounded-xl border border-[#E8E2D5] text-center">
+                <span className="text-[11px] text-[#8C7A60] block mb-1">
+                  저상버스 여부
+                </span>
+
+                <span className="text-xs font-bold text-emerald-700">
+                  {recommendedBus.isLowFloor ? '✓ 저상 운행' : '일반 버스'}
+                </span>
+              </div>
+
+              <div className="bg-[#F7F3EC] p-3 rounded-xl border border-[#E8E2D5] text-center">
+                <span className="text-[11px] text-[#8C7A60] block mb-1">
+                  도착 정류장
+                </span>
+
+                <span className="text-xs font-bold text-[#695C4A]">
+                  {recommendedBus.remainingStop}개 전
+                </span>
+              </div>
+
+              <div className="bg-[#F7F3EC] p-3 rounded-xl border border-[#E8E2D5] text-center">
+                <span className="text-[11px] text-[#8C7A60] block mb-1">
+                  실시간 혼잡도
+                </span>
+
+                <span
+                  className={`text-xs font-bold ${getCongestionClass(
+                    recommendedBus.congestion,
+                  )}`}
+                >
+                  {getCongestionLabel(recommendedBus.congestion)}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[28px] p-8 text-center text-[#9E8B70] font-medium border border-[#E8E2D5] mb-5">
+            현재 도착 예정인 버스가 없습니다.
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4 mb-6">
+          {otherBusList.map((bus, index) => (
+            <div
+              key={`${bus.busNumber}-${bus.etaSeconds}-${bus.remainingStop}-${index}`}
+              className="bg-white rounded-3xl p-5 shadow-sm border border-[#E8E2D5] flex items-center justify-between"
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-[90px] h-14 rounded-2xl bg-[#F7F3EC] border border-[#E8E2D5] text-[#695C4A] flex flex-col items-center justify-center flex-shrink-0">
+                  <span className="text-lg font-black leading-none whitespace-nowrap">
+                    {bus.busNumber}
+                  </span>
+
+                  <span className="text-[10px] font-semibold text-[#8C7A60] mt-0.5">
+                    {bus.type || '버스'}
+                  </span>
+                </div>
+
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-[#695C4A] whitespace-nowrap">
+                      {bus.direction || '방면 정보 없음'}
+                    </h3>
+
+                    <span className="text-[11px] font-bold bg-[#F7F3EC] text-[#7A6A53] px-2 py-0.5 rounded border border-[#E8E2D5] flex items-center gap-1 whitespace-nowrap">
+                      {bus.isLowFloor && (
+                        <Accessibility className="w-3 h-3 text-[#695C4A]" />
+                      )}
+
+                      {bus.isLowFloor ? '저상 운행' : '일반 버스'}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-[#8C7A60] mt-1">
+                    {bus.route || '노선 정보 없음'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right flex-shrink-0 ml-4">
+                <div className="text-lg font-bold text-[#695C4A] whitespace-nowrap">
+                  약{' '}
+                  <span className="text-xl font-black text-red-600">
+                    {bus.etaMinutes}
+                  </span>{' '}
+                  분 후
+                </div>
+
+                <p className="text-xs text-[#8C7A60] mt-1 whitespace-nowrap">
+                  {bus.remainingStop}개 정류장 전
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* 3. 하단 시간대별 예상 혼잡도 안내 */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#E8E2D5] mb-8">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-bold text-[#695C4A] text-base flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[#695C4A]" /> 시간대별 예상
-              혼잡도 안내
+              <BarChart3 className="w-5 h-5 text-[#695C4A]" />
+              시간대별 예상 혼잡도 안내
             </h3>
+
             <span className="text-xs text-[#7A6321] font-medium bg-[#FFFDEB] px-3 py-1 rounded-full border border-[#E3C37A]">
-              광주역 정류소 통계 데이터 기반
+              {selectedStation?.name || '현재 정류장'} 실시간 데이터
             </span>
           </div>
 
           <div className="grid grid-cols-4 gap-3">
-            <div className="bg-[#F7F3EC] p-3.5 rounded-2xl border border-[#E8E2D5]">
-              <div className="flex justify-between text-xs font-bold text-[#7A6A53] mb-2">
-                <span>출근 시간대</span>
-                <span className="text-[10px] text-[#9E8B70]">07~09시</span>
-              </div>
-              <div className="w-full bg-[#D5CEBF] h-2 rounded-full overflow-hidden mb-2">
-                <div className="bg-red-500 h-full w-[85%]"></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-red-600">● 혼잡</span>
-                <span className="text-[11px] text-[#8C7A60]">입석 다수</span>
-              </div>
-            </div>
+            {timePeriods.map((period) => {
+              const congestion = getCongestionData(
+                period.startHour,
+                period.endHour,
+              )
 
-            <div className="bg-[#F7F3EC] p-3.5 rounded-2xl border border-[#E8E2D5]">
-              <div className="flex justify-between text-xs font-bold text-[#7A6A53] mb-2">
-                <span>오전 시간대</span>
-                <span className="text-[10px] text-[#9E8B70]">10~12시</span>
-              </div>
-              <div className="w-full bg-[#D5CEBF] h-2 rounded-full overflow-hidden mb-2">
-                <div className="bg-amber-500 h-full w-[45%]"></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-[#7A6321]">● 보통</span>
-                <span className="text-[11px] text-[#8C7A60]">착석 가능</span>
-              </div>
-            </div>
+              const status = congestion?.status
+              const label = getCongestionLabel(status)
+              const percent = getCongestionPercent(status)
 
-            <div className="bg-[#F7F3EC] p-3.5 rounded-2xl border border-[#E8E2D5]">
-              <div className="flex justify-between text-xs font-bold text-[#7A6A53] mb-2">
-                <span>낮 시간대</span>
-                <span className="text-[10px] text-[#9E8B70]">13~16시</span>
-              </div>
-              <div className="w-full bg-[#D5CEBF] h-2 rounded-full overflow-hidden mb-2">
-                <div className="bg-emerald-500 h-full w-[25%]"></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-emerald-600">
-                  ● 여유
-                </span>
-                <span className="text-[11px] text-[#8C7A60]">좌석 넉넉</span>
-              </div>
-            </div>
+              return (
+                <div
+                  key={period.title}
+                  className="bg-[#F7F3EC] p-3.5 rounded-2xl border border-[#E8E2D5]"
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs font-bold text-[#7A6A53]">
+                      {period.title}
+                    </div>
 
-            <div className="bg-[#F7F3EC] p-3.5 rounded-2xl border border-[#E8E2D5]">
-              <div className="flex justify-between text-xs font-bold text-[#7A6A53] mb-2">
-                <span>퇴근 시간대</span>
-                <span className="text-[10px] text-[#9E8B70]">18~20시</span>
-              </div>
-              <div className="w-full bg-[#D5CEBF] h-2 rounded-full overflow-hidden mb-2">
-                <div className="bg-red-500 h-full w-[90%]"></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-red-600">● 혼잡</span>
-                <span className="text-[11px] text-[#8C7A60]">탑승 대기</span>
-              </div>
-            </div>
+                    <div className="text-xs font-bold text-[#8C7A60]">
+                      {period.time}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 h-2 bg-[#D9D2C5] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-current transition-all"
+                      style={{
+                        width: `${percent}%`,
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center mt-3">
+                    <span
+                      className={`text-xs font-bold ${getCongestionClass(
+                        status,
+                      )}`}
+                    >
+                      ● {label}
+                    </span>
+
+                    <span className="text-[11px] text-[#8C7A60]">
+                      {congestionLoading
+                        ? '불러오는 중'
+                        : congestion
+                          ? `${congestion.hour}시 기준`
+                          : '정보 없음'}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </main>
