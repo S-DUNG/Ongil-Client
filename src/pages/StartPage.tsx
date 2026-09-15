@@ -13,8 +13,6 @@ interface SafetyData {
 
 function StartPage({
   onStart,
-  onWeather,
-  onSafety,
 }: {
   onStart: () => void
   onWeather: () => void
