@@ -11,13 +11,7 @@ interface SafetyData {
   status?: string
 }
 
-function StartPage({
-  onStart,
-}: {
-  onStart: () => void
-  onWeather: () => void
-  onSafety: () => void
-}) {
+function StartPage({ onStart }: { onStart: () => void }) {
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [safety, setSafety] = useState<SafetyData | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
