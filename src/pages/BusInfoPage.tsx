@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../api'
 import React, { useEffect, useState } from 'react'
 import {
   Accessibility,
@@ -83,7 +84,7 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         console.log('GPS:', latitude, longitude)
 
         const stationResponse = await fetch(
-          `http://54.116.242.126:8080/stations/nearby?lat=${latitude}&lng=${longitude}`,
+          `${API_BASE_URL}/stations/nearby?lat=${latitude}&lng=${longitude}`,
         )
 
         if (!stationResponse.ok) {
@@ -109,7 +110,7 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         console.log('선택된 정류장:', station)
 
         const congestionResponse = await fetch(
-          `http://54.116.242.126:8080/stations/${encodeURIComponent(
+          `${API_BASE_URL}/stations/${encodeURIComponent(
             station.stationId,
           )}/congestion-forecast`,
         )
@@ -135,7 +136,7 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
         }
 
         const arrivalResponse = await fetch(
-          `http://54.116.242.126:8080/stations/${encodeURIComponent(
+          `${API_BASE_URL}/stations/${encodeURIComponent(
             station.tagoNodeId,
           )}/arrivals?cityCode=${encodeURIComponent(station.tagoCityCode)}`,
         )

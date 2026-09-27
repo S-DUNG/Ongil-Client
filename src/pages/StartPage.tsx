@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../api'
 import { useEffect, useState } from 'react'
 import { Sun, Smile, Meh, Frown, Flame } from 'lucide-react'
 
@@ -30,7 +31,7 @@ function StartPage({ onStart }: { onStart: () => void }) {
         console.log('GPS:', latitude, longitude)
 
         const weatherRes = await fetch(
-          `http://54.116.242.126:8080/environment/weather?lat=${latitude}&lng=${longitude}`,
+          `${API_BASE_URL}/environment/weather?lat=${latitude}&lng=${longitude}`,
         )
 
         console.log('날씨 API 상태:', weatherRes.status)
@@ -47,7 +48,7 @@ function StartPage({ onStart }: { onStart: () => void }) {
         setWeather(weatherData)
 
         const safetyRes = await fetch(
-          `http://54.116.242.126:8080/environment/safety?lat=${latitude}&lng=${longitude}`,
+          `${API_BASE_URL}/environment/safety?lat=${latitude}&lng=${longitude}`,
         )
 
         console.log('환경 API 상태:', safetyRes.status)
