@@ -46,7 +46,6 @@ function HomePage({
 
   useEffect(() => {
     if (!location) {
-      setStationName('')
       return
     }
 

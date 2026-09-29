@@ -45,14 +45,20 @@ function RoutePage({ destination, onBack, onHome }: RoutePageProps) {
 
   const [route, setRoute] = useState<RouteResponse | null>(null)
   const [stationName, setStationName] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
+
+  const [isLoading, setIsLoading] = useState<boolean>(
+    typeof navigator !== 'undefined' && !navigator.geolocation,
+  )
+
+  const [error, setError] = useState(
+    typeof navigator !== 'undefined' && !navigator.geolocation
+      ? '이 브라우저에서는 현재 위치를 사용할 수 없습니다.'
+      : '',
+  )
 
   // 현재 위치 가져오기
   useEffect(() => {
     if (!navigator.geolocation) {
-      setError('이 브라우저에서는 현재 위치를 사용할 수 없습니다.')
-      setIsLoading(false)
       return
     }
 
@@ -85,7 +91,9 @@ function RoutePage({ destination, onBack, onHome }: RoutePageProps) {
 
   // 현재 위치 → 주변 정류장 → 경로 조회
   useEffect(() => {
-    if (!location) return
+    if (!location) {
+      return
+    }
 
     const loadRoute = async () => {
       try {
@@ -139,19 +147,19 @@ function RoutePage({ destination, onBack, onHome }: RoutePageProps) {
 
         console.log('가장 가까운 정류장:', nearestStation)
         console.log('stationId:', nearestStation.stationId)
-        console.log('TAGO nodeId:', nearestStation.tagoNodeId)
         console.log('manageStationId:', nearestStation.manageStationId)
+        console.log('TAGO nodeId:', nearestStation.tagoNodeId)
 
-        // 실제 routes API에서는 stationId를 originId로 사용
-        if (!nearestStation.stationId) {
-          throw new Error('출발 정류장의 stationId를 확인할 수 없습니다.')
+        // routes API는 stationId가 아니라 manageStationId를 originId로 사용
+        if (nearestStation.manageStationId === null) {
+          throw new Error('출발 정류장의 관리 정류장 ID를 확인할 수 없습니다.')
         }
 
         setStationName(nearestStation.name)
 
         // 3. 경로 조회
         const routeParams = new URLSearchParams({
-          originId: nearestStation.stationId,
+          originId: String(nearestStation.manageStationId),
           destinationLat: String(destination.lat),
           destinationLng: String(destination.lng),
           destinationName: destination.name,

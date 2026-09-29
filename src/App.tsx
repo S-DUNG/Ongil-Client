@@ -36,7 +36,12 @@ function App() {
   })
 
   const [location, setLocation] = useState<UserLocation | null>(null)
-  const [locationError, setLocationError] = useState('')
+
+  const [locationError, setLocationError] = useState(
+    typeof navigator !== 'undefined' && !navigator.geolocation
+      ? '이 브라우저에서는 현재 위치를 사용할 수 없습니다.'
+      : '',
+  )
 
   // 현재 페이지 저장
   useEffect(() => {
@@ -55,7 +60,6 @@ function App() {
   // 현재 위치 가져오기
   useEffect(() => {
     if (!navigator.geolocation) {
-      setLocationError('이 브라우저에서는 현재 위치를 사용할 수 없습니다.')
       return
     }
 

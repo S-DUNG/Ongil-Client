@@ -29,19 +29,18 @@ interface NearbyStation {
 }
 
 function Header({ location: propLocation, onHome }: HeaderProps) {
-  const [location, setLocation] = useState<{
+  const [internalLocation, setInternalLocation] = useState<{
     lat: number
     lng: number
-  } | null>(propLocation ?? null)
+  } | null>(null)
 
   const [temperature, setTemperature] = useState<number | null>(null)
   const [stationName, setStationName] = useState('')
 
-  // App에서 현재 위치를 받으면 바로 사용
+  // App에서 현재 위치를 받으면 해당 위치를 사용하고,
   // 받지 못한 경우 Header에서 직접 현재 위치 가져오기
   useEffect(() => {
     if (propLocation) {
-      setLocation(propLocation)
       return
     }
 
@@ -61,7 +60,7 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
 
         console.log('Header 현재 위치:', currentLocation)
 
-        setLocation(currentLocation)
+        setInternalLocation(currentLocation)
       },
       (error) => {
         console.error('Header 현재 위치를 가져오지 못했습니다.', error)
@@ -74,14 +73,16 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
     )
   }, [propLocation])
 
+  // App에서 받은 위치를 우선 사용
+  const location = propLocation ?? internalLocation
+
   // 현재 위치에서 가장 가까운 정류장 가져오기
   useEffect(() => {
-    console.log('정류장 조회에 사용할 위치:', location)
-
     if (!location) {
-      setStationName('')
       return
     }
+
+    console.log('정류장 조회에 사용할 위치:', location)
 
     const loadNearbyStation = async () => {
       try {
@@ -115,7 +116,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
 
         if (!stations || stations.length === 0) {
           console.log('주변 정류장이 없습니다.')
-          setStationName('')
           return
         }
 
@@ -130,7 +130,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
         setStationName(nearestStation.name)
       } catch (error) {
         console.error('주변 정류장 조회 오류:', error)
-        setStationName('')
       }
     }
 
@@ -140,7 +139,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
   // 현재 위치를 이용해서 날씨 가져오기
   useEffect(() => {
     if (!location) {
-      setTemperature(null)
       return
     }
 
@@ -172,7 +170,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
         setTemperature(data.temperature)
       } catch (error) {
         console.error('날씨 조회 오류:', error)
-        setTemperature(null)
       }
     }
 
@@ -217,7 +214,9 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
             <WeatherIcon size={23} />
 
             <span className="text-lg font-bold text-[#695C4A]">
-              {temperature !== null ? `${Math.round(temperature)}°` : '--°'}
+              {location && temperature !== null
+                ? `${Math.round(temperature)}°`
+                : '--°'}
             </span>
           </div>
         </div>

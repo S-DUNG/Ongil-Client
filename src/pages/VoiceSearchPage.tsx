@@ -48,7 +48,14 @@ function VoiceSearchPage({ onBack, onRoute, onHome }: VoiceSearchPageProps) {
   const [isListening, setIsListening] = useState(false)
   const [keyword, setKeyword] = useState('')
   const [isSearching, setIsSearching] = useState(false)
-  const [error, setError] = useState('')
+
+  const [error, setError] = useState(
+    typeof window !== 'undefined' &&
+      !window.SpeechRecognition &&
+      !window.webkitSpeechRecognition
+      ? '이 브라우저에서는 음성 검색을 사용할 수 없습니다.'
+      : '',
+  )
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
 
@@ -57,7 +64,6 @@ function VoiceSearchPage({ onBack, onRoute, onHome }: VoiceSearchPageProps) {
       window.SpeechRecognition || window.webkitSpeechRecognition
 
     if (!SpeechRecognition) {
-      setError('이 브라우저에서는 음성 검색을 사용할 수 없습니다.')
       return
     }
 
