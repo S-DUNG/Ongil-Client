@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import Header from '../components/Header'
 
 import {
@@ -10,14 +12,101 @@ import {
 
 interface HomePageProps {
   onSearch: () => void
+  onVoiceSearch: () => void
   onHelp: () => void
   onEnd: () => void
+  onHome: () => void
+  location: {
+    lat: number
+    lng: number
+  } | null
+  locationError: string
 }
 
-function HomePage({ onSearch, onHelp, onEnd }: HomePageProps) {
+interface NearbyStation {
+  stationId: string | null
+  name: string
+  lat: number
+  lng: number
+  distanceMeters: number
+  tagoNodeId: string | null
+  tagoCityCode: string | null
+}
+
+function HomePage({
+  onSearch,
+  onVoiceSearch,
+  onHelp,
+  onEnd,
+  onHome,
+  location,
+  locationError,
+}: HomePageProps) {
+  const [stationName, setStationName] = useState('')
+
+  useEffect(() => {
+    if (!location) {
+      setStationName('')
+      return
+    }
+
+    const loadNearbyStation = async () => {
+      try {
+        const params = new URLSearchParams({
+          lat: String(location.lat),
+          lng: String(location.lng),
+          radiusMeters: '1000',
+        })
+
+        const requestUrl = `/api/stations/nearby?${params.toString()}`
+
+        console.log('메인페이지 주변 정류장 요청:', requestUrl)
+
+        const response = await fetch(requestUrl)
+
+        console.log(
+          '메인페이지 주변 정류장 응답:',
+          response.status,
+          response.statusText,
+        )
+
+        if (!response.ok) {
+          throw new Error(
+            `주변 정류장을 불러오지 못했습니다. (${response.status})`,
+          )
+        }
+
+        const stations: NearbyStation[] = await response.json()
+
+        console.log('메인페이지 주변 정류장:', stations)
+
+        if (!stations || stations.length === 0) {
+          console.log('현재 위치 주변에 정류장이 없습니다.')
+
+          setStationName('')
+          return
+        }
+
+        const nearestStation = [...stations].sort(
+          (a, b) => a.distanceMeters - b.distanceMeters,
+        )[0]
+
+        console.log('메인페이지 가장 가까운 정류장:', nearestStation)
+
+        setStationName(nearestStation.name)
+      } catch (error) {
+        console.error('메인페이지 주변 정류장 조회 오류:', error)
+
+        setStationName('')
+      }
+    }
+
+    loadNearbyStation()
+  }, [location])
+
   return (
     <main className="min-h-screen bg-[#F7F3EC]">
-      <Header />
+      <Header location={location} onHome={onHome} />
 
       <div className="mx-auto min-h-screen w-full max-w-[760px]">
         <section className="px-6 pb-10 pt-10">
@@ -30,9 +119,15 @@ function HomePage({ onSearch, onHelp, onEnd }: HomePageProps) {
             <div>
               <p className="text-sm font-medium text-[#8A7B6D]">현재 위치</p>
 
-              <p className="mt-0.5 text-xl font-bold text-[#66563F]">
-                광주소프트웨어마이스터고
-              </p>
+              {locationError ? (
+                <p className="mt-0.5 text-base font-semibold text-[#695C4A]">
+                  {locationError}
+                </p>
+              ) : (
+                <p className="mt-0.5 text-xl font-bold text-[#66563F]">
+                  {stationName || '현재 위치 확인 중'}
+                </p>
+              )}
             </div>
           </section>
 
@@ -73,7 +168,7 @@ function HomePage({ onSearch, onHelp, onEnd }: HomePageProps) {
           {/* 음성 검색 */}
           <button
             type="button"
-            onClick={onSearch}
+            onClick={onVoiceSearch}
             className="mt-4 flex w-full items-center gap-4 rounded-[22px] bg-white px-5 py-4 shadow-[0_3px_12px_rgba(102,86,63,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_5px_16px_rgba(102,86,63,0.1)] active:translate-y-0"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F3E7C8] text-[#66563F]">
