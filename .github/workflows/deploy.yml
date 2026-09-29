@@ -1,0 +1,83 @@
+name: Deploy Client to S3
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-client
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Node 설정 
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+        
+      - name: Build
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Upload assets to S3 (long cache)
+        run: |
+          aws s3 sync ./dist s3://${{ secrets.S3_BUCKET }} --delete \
+            --exclude "index.html" \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Upload index.html to S3 (no cache)
+        run: |
+          aws s3 cp ./dist/index.html s3://${{ secrets.S3_BUCKET }}/index.html \
+            --cache-control "no-cache"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      - name: Ongil-Client CD Discord Notification (success)
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_FRONT_WEBHOOK }}
+          status: ${{ job.status }}
+          title: '🚀 [Client] 배포 성공 🚀'
+          description: 'S3 + CloudFront 배포 완료'
+          color: 65280
+          username: 'front-bot'
+ 
+      - name: Ongil-Client CD Discord Notification (failure)
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_FRONT_WEBHOOK }}
+          status: ${{ job.status }}
+          title: '❗ [Client] 배포 실패❗'
+          description: 'S3 + CloudFront 배포 실패'
+          color: 16711680
+          username: 'front-bot'

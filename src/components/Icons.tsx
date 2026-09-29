@@ -20,7 +20,6 @@ export function SearchIcon({ size = 28, strokeWidth = 2.5 }: IconProps) {
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
-
       <path
         d="M16 16L21 21"
         stroke="currentColor"
@@ -47,7 +46,6 @@ export function LocationIcon({ size = 24, strokeWidth = 2.5 }: IconProps) {
         strokeWidth={strokeWidth}
         strokeLinejoin="round"
       />
-
       <circle
         cx="12"
         cy="10.5"
@@ -76,56 +74,48 @@ export function WeatherIcon({ size = 30, strokeWidth = 2 }: IconProps) {
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
-
       <path
         d="M12 2V4"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M12 20V22"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M4.93 4.93L6.34 6.34"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M17.66 17.66L19.07 19.07"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M2 12H4"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M20 12H22"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M4.93 19.07L6.34 17.66"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M17.66 6.34L19.07 4.93"
         stroke="currentColor"
@@ -155,21 +145,18 @@ export function MicIcon({ size = 30, strokeWidth = 2.3 }: IconProps) {
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
-
       <path
         d="M5 11C5 14.866 8.134 18 12 18C15.866 18 19 14.866 19 11"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M12 18V21"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M9 21H15"
         stroke="currentColor"
@@ -199,30 +186,25 @@ export function BusIcon({ size = 30, strokeWidth = 2.2 }: IconProps) {
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
-
       <path d="M5 9H19" stroke="currentColor" strokeWidth={strokeWidth} />
-
       <path
         d="M8 14H8.01"
         stroke="currentColor"
         strokeWidth={strokeWidth + 1}
         strokeLinecap="round"
       />
-
       <path
         d="M16 14H16.01"
         stroke="currentColor"
         strokeWidth={strokeWidth + 1}
         strokeLinecap="round"
       />
-
       <path
         d="M8 20V22"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M16 20V22"
         stroke="currentColor"
@@ -250,18 +232,17 @@ export function HelpIcon({ size = 30, strokeWidth = 2.2 }: IconProps) {
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
-
       <path
         d="M9.5 9.5C9.5 8.12 10.62 7 12 7C13.38 7 14.5 8.12 14.5 9.5C14.5 10.65 13.76 11.28 12.95 11.84C12.4 12.22 12 12.65 12 13.5"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <circle cx="12" cy="17" r="1" fill="currentColor" />
     </svg>
   )
 }
+
 export function SupportIcon({ size = 30, strokeWidth = 2.2 }: IconProps) {
   return (
     <svg
@@ -279,21 +260,18 @@ export function SupportIcon({ size = 30, strokeWidth = 2.2 }: IconProps) {
         stroke="currentColor"
         strokeWidth={strokeWidth}
       />
-
       <path
         d="M8 10H16"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M12 7V14"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
-
       <path
         d="M9 20L12 14L15 20"
         stroke="currentColor"
@@ -301,7 +279,6 @@ export function SupportIcon({ size = 30, strokeWidth = 2.2 }: IconProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-
       <path
         d="M7 14H5C3.9 14 3 14.9 3 16V18"
         stroke="currentColor"

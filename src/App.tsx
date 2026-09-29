@@ -5,8 +5,19 @@ import RoutePage from './pages/RoutePage'
 import SearchPage, { type Destination } from './pages/SearchPage'
 import StartPage from './pages/StartPage'
 import VoiceSearchPage from './pages/VoiceSearchPage'
+import HelpRequestPage from './pages/HelpRequestPage'
+import HelpGuidePage from './pages/HelpGuidePage'
+import BusInfoPage from './pages/BusInfoPage'
 
-export type Page = 'start' | 'home' | 'search' | 'voice-search' | 'route'
+export type Page =
+  | 'start'
+  | 'home'
+  | 'search'
+  | 'voice-search'
+  | 'route'
+  | 'help'
+  | 'guide'
+  | 'busInfo'
 
 export interface UserLocation {
   lat: number
@@ -14,7 +25,17 @@ export interface UserLocation {
 }
 
 const savedPage = localStorage.getItem('ongil-page') as Page | null
-const validPages: Page[] = ['start', 'home', 'search', 'voice-search', 'route']
+
+const validPages: Page[] = [
+  'start',
+  'home',
+  'search',
+  'voice-search',
+  'route',
+  'help',
+  'guide',
+  'busInfo',
+]
 
 function App() {
   const [page, setPage] = useState<Page>(
@@ -43,12 +64,12 @@ function App() {
       : '',
   )
 
-  // 현재 페이지 저장
+  const [selectedGuideId, setSelectedGuideId] = useState<number>(1)
+
   useEffect(() => {
     localStorage.setItem('ongil-page', page)
   }, [page])
 
-  // 선택한 목적지 저장
   useEffect(() => {
     if (destination) {
       localStorage.setItem('ongil-destination', JSON.stringify(destination))
@@ -57,7 +78,6 @@ function App() {
     }
   }, [destination])
 
-  // 현재 위치 가져오기
   useEffect(() => {
     if (!navigator.geolocation) {
       return
@@ -96,6 +116,30 @@ function App() {
 
   const goHome = () => {
     setPage('home')
+  }
+
+  const handleNavigate = (
+    nextPage: 'bus' | 'route' | 'help' | 'guide',
+    id?: number,
+  ) => {
+    if (nextPage === 'bus') {
+      setPage('busInfo')
+    } else if (nextPage === 'guide') {
+      if (id) {
+        setSelectedGuideId(id)
+      }
+
+      setPage('guide')
+    } else if (nextPage === 'help') {
+      setPage('help')
+    } else if (nextPage === 'route') {
+      setPage('route')
+    }
+  }
+
+  const handleEndSession = () => {
+    setDestination(null)
+    setPage('start')
   }
 
   if (page === 'start') {
@@ -143,15 +187,35 @@ function App() {
     )
   }
 
+  if (page === 'help') {
+    return (
+      <HelpRequestPage
+        onNavigate={handleNavigate}
+        onEndSession={handleEndSession}
+      />
+    )
+  }
+
+  if (page === 'guide') {
+    return (
+      <HelpGuidePage
+        selectedId={selectedGuideId}
+        onNavigate={handleNavigate}
+        onEndSession={handleEndSession}
+      />
+    )
+  }
+
+  if (page === 'busInfo') {
+    return <BusInfoPage onEndSession={handleEndSession} />
+  }
+
   return (
     <HomePage
       onSearch={() => setPage('search')}
       onVoiceSearch={() => setPage('voice-search')}
-      onHelp={() => {}}
-      onEnd={() => {
-        setDestination(null)
-        setPage('start')
-      }}
+      onHelp={() => setPage('help')}
+      onEnd={handleEndSession}
       location={location}
       locationError={locationError}
       onHome={goHome}

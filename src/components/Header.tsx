@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+
 import { LocationIcon, WeatherIcon } from './Icons'
 
 interface HeaderProps {
@@ -37,8 +38,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
   const [temperature, setTemperature] = useState<number | null>(null)
   const [stationName, setStationName] = useState('')
 
-  // App에서 현재 위치를 받으면 해당 위치를 사용하고,
-  // 받지 못한 경우 Header에서 직접 현재 위치 가져오기
   useEffect(() => {
     if (propLocation) {
       return
@@ -59,7 +58,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
         }
 
         console.log('Header 현재 위치:', currentLocation)
-
         setInternalLocation(currentLocation)
       },
       (error) => {
@@ -73,10 +71,8 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
     )
   }, [propLocation])
 
-  // App에서 받은 위치를 우선 사용
   const location = propLocation ?? internalLocation
 
-  // 현재 위치에서 가장 가까운 정류장 가져오기
   useEffect(() => {
     if (!location) {
       return
@@ -119,7 +115,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
           return
         }
 
-        // 가장 가까운 정류장 선택
         const nearestStation = [...stations].sort(
           (a, b) => a.distanceMeters - b.distanceMeters,
         )[0]
@@ -136,7 +131,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
     loadNearbyStation()
   }, [location])
 
-  // 현재 위치를 이용해서 날씨 가져오기
   useEffect(() => {
     if (!location) {
       return
@@ -179,7 +173,6 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
   return (
     <div className="w-full bg-[#F7F3EC] shadow-[0_3px_12px_rgba(105,92,74,0.07)]">
       <header className="flex w-full items-center justify-between px-6 py-5">
-        {/* 왼쪽 - 온길 로고 */}
         <div className="ml-3 flex items-center">
           <button
             type="button"
@@ -195,24 +188,18 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
           </button>
         </div>
 
-        {/* 오른쪽 - 위치 + 날씨 */}
         <div className="flex items-center gap-4">
-          {/* 현재 정류장 */}
           <div className="flex items-center gap-2">
             <LocationIcon size={22} />
-
             <span className="max-w-[180px] truncate text-base font-semibold text-[#695C4A]">
               {stationName || '정류장 확인 중'}
             </span>
           </div>
 
-          {/* 구분선 */}
           <div className="h-6 w-px bg-[#695C4A]/15" />
 
-          {/* 날씨 */}
           <div className="flex items-center gap-2">
             <WeatherIcon size={23} />
-
             <span className="text-lg font-bold text-[#695C4A]">
               {location && temperature !== null
                 ? `${Math.round(temperature)}°`
