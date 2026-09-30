@@ -60,15 +60,15 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
       <Header onHome={onBack} />
 
       <main className="w-full max-w-[760px] px-6 pt-8 flex flex-col">
-        <div className="flex items-start gap-5 mb-6">
+        <div className="flex items-start gap-5 mb-8">
           <BackButton onClick={onBack} />
 
           <div>
-            <h1 className="text-[28px] font-extrabold tracking-tight text-[#695C4A] mb-1">
+            <h1 className="text-[32px] font-extrabold tracking-tight text-[#695C4A] mb-2">
               맞춤형 이용 안내
             </h1>
 
-            <p className="text-[15px] text-[#8C7A60]">
+            <p className="text-[17px] font-medium text-[#8C7A60] leading-relaxed">
               선택하신 항목에 대한 상세한 이용 방법을 순서대로 안내해 드립니다.
             </p>
           </div>
@@ -76,7 +76,7 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
 
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#E8E2D5] mb-8">
           <div className="border-b border-[#E8E2D5] pb-6 mb-6">
-            <h2 className="text-[22px] font-bold text-[#695C4A]">
+            <h2 className="text-[25px] font-bold text-[#695C4A] leading-relaxed">
               {currentGuide.title}
             </h2>
           </div>
@@ -87,24 +87,26 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
                 key={index}
                 className="flex items-center gap-4 p-5 rounded-2xl bg-[#F7F3EC] border border-[#E8E2D5]"
               >
-                <div className="w-8 h-8 rounded-full bg-[#FFEEA0] text-[#695C4A] font-bold flex items-center justify-center shrink-0 text-sm border border-[#E3C37A]">
+                <div className="w-9 h-9 rounded-full bg-[#FFEEA0] text-[#695C4A] font-extrabold flex items-center justify-center shrink-0 text-[16px] border border-[#E3C37A]">
                   {index + 1}
                 </div>
 
-                <p className="text-[16px] font-medium text-[#695C4A]">{step}</p>
+                <p className="text-[18px] font-semibold text-[#695C4A] leading-relaxed">
+                  {step}
+                </p>
               </div>
             ))}
           </div>
 
           <div className="bg-[#FFFDEB] border-2 border-[#E3C37A] rounded-2xl p-5 flex items-start gap-3">
-            <Lightbulb className="w-6 h-6 text-[#695C4A] shrink-0 mt-0.5" />
+            <Lightbulb className="w-7 h-7 text-[#695C4A] shrink-0 mt-0.5" />
 
             <div>
-              <h4 className="font-bold text-[#695C4A] text-base mb-1">
+              <h4 className="font-bold text-[#695C4A] text-[17px] mb-1">
                 참고해 주세요!
               </h4>
 
-              <p className="text-[#7A6A53] text-sm leading-relaxed">
+              <p className="text-[#7A6A53] text-[16px] leading-relaxed">
                 {currentGuide.tip}
               </p>
             </div>
@@ -115,7 +117,7 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('help')}
-            className="flex-1 max-w-[220px] py-4 bg-white text-[#7A6A53] font-bold rounded-2xl text-[16px] hover:bg-[#F9F6F0] transition cursor-pointer text-center border border-[#E8E2D5]"
+            className="flex-1 max-w-[220px] py-4 bg-white text-[#7A6A53] font-bold rounded-2xl text-[17px] hover:bg-[#F9F6F0] transition cursor-pointer text-center border border-[#E8E2D5]"
           >
             다른 도움말 보기
           </button>
@@ -123,9 +125,9 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
           <button
             type="button"
             onClick={onBack}
-            className="flex-1 max-w-[280px] py-4 bg-[#FFEEA0] text-[#695C4A] font-bold rounded-2xl text-[16px] hover:bg-[#FFE57A] transition shadow-sm cursor-pointer border border-[#E3C37A] text-center"
+            className="flex-1 max-w-[280px] py-4 bg-[#FFEEA0] text-[#695C4A] font-bold rounded-2xl text-[17px] hover:bg-[#FFE57A] transition shadow-sm cursor-pointer border border-[#E3C37A] text-center"
           >
-            메인 페이지로 가기 →
+            메인 페이지로 가기
           </button>
         </div>
       </main>
