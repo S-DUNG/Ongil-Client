@@ -16,6 +16,7 @@ interface HomePageProps {
   onHelp: () => void
   onEnd: () => void
   onHome: () => void
+  onBus: () => void
   location: {
     lat: number
     lng: number
@@ -37,6 +38,7 @@ function HomePage({
   onSearch,
   onVoiceSearch,
   onHelp,
+  onBus,
   onEnd,
   onHome,
   location,
@@ -195,6 +197,7 @@ function HomePage({
               {/* 실시간 버스 도착 */}
               <button
                 type="button"
+                onClick={onBus}
                 className="flex min-h-[175px] flex-col items-center justify-center rounded-3xl bg-white p-5 text-center shadow-[0_3px_12px_rgba(102,86,63,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_5px_16px_rgba(102,86,63,0.1)] active:translate-y-0"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFEEA0] text-[#66563F]">

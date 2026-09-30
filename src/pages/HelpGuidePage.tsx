@@ -1,18 +1,18 @@
 import React from 'react'
 import { Lightbulb } from 'lucide-react'
 import Header from '../components/Header'
-import SubNavbar from '../components/SubNavbar'
+import BackButton from '../components/BackButton'
 
 interface HelpGuidePageProps {
   selectedId: number
   onNavigate: (page: 'bus' | 'route' | 'help' | 'guide', id?: number) => void
-  onEndSession: () => void
+  onBack: () => void
 }
 
 const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
   selectedId,
   onNavigate,
-  onEndSession,
+  onBack,
 }) => {
   const guideDataMap: Record<
     number,
@@ -57,39 +57,21 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
 
   return (
     <div className="w-full min-h-screen bg-[#F7F3EC] flex flex-col items-center font-sans text-[#695C4A] pb-16 relative">
-      <div className="w-full">
-        <Header onHome={onEndSession} />
-      </div>
-
-      <SubNavbar onMenuClick={onNavigate} />
-
-      <div className="absolute top-6 right-10 z-50">
-        <button
-          type="button"
-          onClick={onEndSession}
-          className="bg-[#695C4A] hover:bg-[#524638] text-[#FFEEA0] px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-colors flex items-center gap-2 cursor-pointer border border-[#E3C37A]"
-        >
-          <span>⟲</span> 이용 종료
-        </button>
-      </div>
+      <Header onHome={onBack} />
 
       <main className="w-full max-w-[760px] px-6 pt-8 flex flex-col">
-        <div className="mb-6">
-          <button
-            type="button"
-            onClick={() => onNavigate('help')}
-            className="text-sm text-[#7A6A53] hover:text-[#695C4A] mb-2 font-medium transition cursor-pointer flex items-center gap-1"
-          >
-            ← 이전으로 (도움 요청 선택)
-          </button>
+        <div className="flex items-start gap-5 mb-6">
+          <BackButton onClick={onBack} />
 
-          <h1 className="text-[28px] font-extrabold tracking-tight text-[#695C4A] mb-1">
-            맞춤형 이용 안내
-          </h1>
+          <div>
+            <h1 className="text-[28px] font-extrabold tracking-tight text-[#695C4A] mb-1">
+              맞춤형 이용 안내
+            </h1>
 
-          <p className="text-[15px] text-[#8C7A60]">
-            선택하신 항목에 대한 상세한 이용 방법을 순서대로 안내해 드립니다.
-          </p>
+            <p className="text-[15px] text-[#8C7A60]">
+              선택하신 항목에 대한 상세한 이용 방법을 순서대로 안내해 드립니다.
+            </p>
+          </div>
         </div>
 
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#E8E2D5] mb-8">
@@ -140,10 +122,10 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
 
           <button
             type="button"
-            onClick={() => onNavigate('bus')}
+            onClick={onBack}
             className="flex-1 max-w-[280px] py-4 bg-[#FFEEA0] text-[#695C4A] font-bold rounded-2xl text-[16px] hover:bg-[#FFE57A] transition shadow-sm cursor-pointer border border-[#E3C37A] text-center"
           >
-            실시간 버스 정보 보러가기 →
+            메인 페이지로 가기 →
           </button>
         </div>
       </main>

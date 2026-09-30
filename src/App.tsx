@@ -188,12 +188,7 @@ function App() {
   }
 
   if (page === 'help') {
-    return (
-      <HelpRequestPage
-        onNavigate={handleNavigate}
-        onEndSession={handleEndSession}
-      />
-    )
+    return <HelpRequestPage onNavigate={handleNavigate} onBack={goHome} />
   }
 
   if (page === 'guide') {
@@ -201,13 +196,13 @@ function App() {
       <HelpGuidePage
         selectedId={selectedGuideId}
         onNavigate={handleNavigate}
-        onEndSession={handleEndSession}
+        onBack={goHome}
       />
     )
   }
 
   if (page === 'busInfo') {
-    return <BusInfoPage onEndSession={handleEndSession} />
+    return <BusInfoPage onBack={goHome} />
   }
 
   return (
@@ -215,10 +210,11 @@ function App() {
       onSearch={() => setPage('search')}
       onVoiceSearch={() => setPage('voice-search')}
       onHelp={() => setPage('help')}
+      onBus={() => setPage('busInfo')}
       onEnd={handleEndSession}
+      onHome={goHome}
       location={location}
       locationError={locationError}
-      onHome={goHome}
     />
   )
 }

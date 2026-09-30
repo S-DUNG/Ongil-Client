@@ -11,7 +11,7 @@ import Header from '../components/Header'
 import BackButton from '../components/BackButton'
 
 interface BusInfoPageProps {
-  onEndSession: () => void
+  onBack: () => void
 }
 
 interface ApiArrivalBus {
@@ -48,7 +48,7 @@ interface TimePeriod {
   endHour: number
 }
 
-const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
+const BusInfoPage: React.FC<BusInfoPageProps> = ({ onBack }) => {
   const [busList, setBusList] = useState<ApiArrivalBus[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
@@ -282,22 +282,12 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
 
   return (
     <div className="w-full min-h-screen bg-[#F7F3EC] flex flex-col items-center pb-24 font-sans relative text-[#695C4A]">
-      <Header onHome={onEndSession} />
-
-      <div className="absolute top-6 right-10 z-50">
-        <button
-          type="button"
-          onClick={onEndSession}
-          className="bg-[#695C4A] hover:bg-[#524638] text-[#FFEEA0] px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-colors flex items-center gap-2 cursor-pointer border border-[#E3C37A]"
-        >
-          <span>⟲</span> 이용 종료
-        </button>
-      </div>
+      <Header onHome={onBack} />
 
       <main className="w-full max-w-[760px] px-6 pt-8 flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
-            <BackButton onClick={onEndSession} />
+            <BackButton onClick={onBack} />
 
             <h1 className="text-[26px] font-extrabold tracking-tight text-[#695C4A]">
               실시간 버스 정보

@@ -1,15 +1,15 @@
 import React, { useState } from 'react'
 import Header from '../components/Header'
-import SubNavbar from '../components/SubNavbar'
+import BackButton from '../components/BackButton'
 
 interface HelpRequestPageProps {
   onNavigate: (page: 'bus' | 'route' | 'help' | 'guide', id?: number) => void
-  onEndSession: () => void
+  onBack: () => void
 }
 
 const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
   onNavigate,
-  onEndSession,
+  onBack,
 }) => {
   const [selectedId, setSelectedId] = useState<number>(1)
 
@@ -72,33 +72,13 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center pb-16 font-sans min-h-screen bg-[#F7F3EC] text-[#695C4A] relative">
-      <div className="w-full">
-        <Header onHome={onEndSession} />
-      </div>
-
-      <SubNavbar onMenuClick={onNavigate} />
-
-      <div className="absolute top-6 right-10 z-50">
-        <button
-          type="button"
-          onClick={onEndSession}
-          className="bg-[#695C4A] hover:bg-[#524638] text-[#FFEEA0] px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-colors flex items-center gap-2 cursor-pointer border border-[#E3C37A]"
-        >
-          <span>⟲</span> 이용 종료
-        </button>
-      </div>
+      <Header onHome={onBack} />
 
       <main className="w-full max-w-4xl px-6 py-8">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <button
-              type="button"
-              onClick={() => onNavigate('bus')}
-              className="flex items-center gap-1 text-sm text-[#7A6A53] hover:text-[#695C4A] mb-2 transition font-medium cursor-pointer"
-            >
-              ← 이전으로
-            </button>
+        <div className="flex items-start gap-5 mb-6">
+          <BackButton onClick={onBack} />
 
+          <div>
             <h1 className="text-3xl font-bold text-[#695C4A] mb-1.5">
               무엇을 도와드릴까요?
             </h1>
