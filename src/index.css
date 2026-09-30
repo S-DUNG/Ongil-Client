@@ -2,8 +2,14 @@
 
 :root {
   font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
+
   color: #695c4a;
   background: #f7f3ec;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -15,14 +21,14 @@ body,
 #root {
   min-height: 100%;
   margin: 0;
-  background-color: #f7f3ec !important;
-  color: #695c4a !important;
+  background-color: #f7f3ec;
+  color: #695c4a;
 }
 
 body {
   min-width: 320px;
-  background: #f7f3ec !important;
-  color: #695c4a !important;
+  background: #f7f3ec;
+  color: #695c4a;
 }
 
 button,

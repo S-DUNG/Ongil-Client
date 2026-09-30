@@ -4,7 +4,7 @@ import SubNavbar from '../components/SubNavbar'
 
 interface HelpRequestPageProps {
   onNavigate: (page: 'bus' | 'route' | 'help' | 'guide', id?: number) => void
-  onEndSession?: () => void
+  onEndSession: () => void
 }
 
 const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
@@ -73,35 +73,36 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
   return (
     <div className="w-full flex flex-col items-center pb-16 font-sans min-h-screen bg-[#F7F3EC] text-[#695C4A] relative">
       <div className="w-full">
-        <Header />
+        <Header onHome={onEndSession} />
       </div>
+
       <SubNavbar onMenuClick={onNavigate} />
 
-      {/* 우측 상단 이용 종료 버튼 */}
-      {onEndSession && (
-        <div className="absolute top-6 right-10 z-50">
-          <button
-            type="button"
-            onClick={onEndSession}
-            className="bg-[#695C4A] hover:bg-[#524638] text-[#FFEEA0] px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-colors flex items-center gap-2 cursor-pointer border border-[#E3C37A]"
-          >
-            <span>⟲</span> 이용 종료
-          </button>
-        </div>
-      )}
+      <div className="absolute top-6 right-10 z-50">
+        <button
+          type="button"
+          onClick={onEndSession}
+          className="bg-[#695C4A] hover:bg-[#524638] text-[#FFEEA0] px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-colors flex items-center gap-2 cursor-pointer border border-[#E3C37A]"
+        >
+          <span>⟲</span> 이용 종료
+        </button>
+      </div>
 
       <main className="w-full max-w-4xl px-6 py-8">
         <div className="flex justify-between items-start mb-6">
           <div>
             <button
+              type="button"
               onClick={() => onNavigate('bus')}
               className="flex items-center gap-1 text-sm text-[#7A6A53] hover:text-[#695C4A] mb-2 transition font-medium cursor-pointer"
             >
               ← 이전으로
             </button>
+
             <h1 className="text-3xl font-bold text-[#695C4A] mb-1.5">
               무엇을 도와드릴까요?
             </h1>
+
             <p className="text-[#8C7A60] text-sm">
               궁금하시거나 불편한 사항을 선택하시면 맞춤형 안내를 제공해
               드립니다.
@@ -118,6 +119,7 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
           <div className="space-y-3 mb-8">
             {options.map((opt) => {
               const isSelected = selectedId === opt.id
+
               return (
                 <div
                   key={opt.id}
@@ -130,16 +132,24 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
                 >
                   <div className="flex items-center gap-4">
                     <div
-                      className={`p-3 rounded-xl ${isSelected ? 'bg-[#FFEEA0] text-[#695C4A]' : 'bg-[#F7F3EC] text-[#7A6A53]'}`}
+                      className={`p-3 rounded-xl ${
+                        isSelected
+                          ? 'bg-[#FFEEA0] text-[#695C4A]'
+                          : 'bg-[#F7F3EC] text-[#7A6A53]'
+                      }`}
                     >
                       {opt.icon}
                     </div>
+
                     <span
-                      className={`text-lg font-bold ${isSelected ? 'text-[#695C4A]' : 'text-[#7A6A53]'}`}
+                      className={`text-lg font-bold ${
+                        isSelected ? 'text-[#695C4A]' : 'text-[#7A6A53]'
+                      }`}
                     >
                       {opt.text}
                     </span>
                   </div>
+
                   <div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                       isSelected
@@ -156,10 +166,11 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
 
           <div className="flex justify-center mb-2">
             <button
+              type="button"
               onClick={() => onNavigate('guide', selectedId)}
               className="w-full max-w-md py-4 bg-[#FFEEA0] text-[#695C4A] font-bold rounded-2xl text-lg hover:bg-[#FFE57A] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer border border-[#E3C37A]"
             >
-            이 내용으로 안내받기
+              이 내용으로 안내받기
             </button>
           </div>
         </div>

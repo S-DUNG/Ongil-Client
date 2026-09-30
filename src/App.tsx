@@ -1,58 +1,225 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import HomePage from './pages/HomePage'
+import RoutePage from './pages/RoutePage'
+import SearchPage, { type Destination } from './pages/SearchPage'
 import StartPage from './pages/StartPage'
+import VoiceSearchPage from './pages/VoiceSearchPage'
 import HelpRequestPage from './pages/HelpRequestPage'
 import HelpGuidePage from './pages/HelpGuidePage'
 import BusInfoPage from './pages/BusInfoPage'
 
+export type Page =
+  | 'start'
+  | 'home'
+  | 'search'
+  | 'voice-search'
+  | 'route'
+  | 'help'
+  | 'guide'
+  | 'busInfo'
+
+export interface UserLocation {
+  lat: number
+  lng: number
+}
+
+const savedPage = localStorage.getItem('ongil-page') as Page | null
+
+const validPages: Page[] = [
+  'start',
+  'home',
+  'search',
+  'voice-search',
+  'route',
+  'help',
+  'guide',
+  'busInfo',
+]
+
 function App() {
-  const [currentPage, setCurrentPage] = useState<
-    'start' | 'help' | 'guide' | 'busInfo'
-  >('start')
+  const [page, setPage] = useState<Page>(
+    savedPage && validPages.includes(savedPage) ? savedPage : 'start',
+  )
+
+  const [destination, setDestination] = useState<Destination | null>(() => {
+    const savedDestination = localStorage.getItem('ongil-destination')
+
+    if (!savedDestination) {
+      return null
+    }
+
+    try {
+      return JSON.parse(savedDestination)
+    } catch {
+      return null
+    }
+  })
+
+  const [location, setLocation] = useState<UserLocation | null>(null)
+
+  const [locationError, setLocationError] = useState(
+    typeof navigator !== 'undefined' && !navigator.geolocation
+      ? '이 브라우저에서는 현재 위치를 사용할 수 없습니다.'
+      : '',
+  )
+
   const [selectedGuideId, setSelectedGuideId] = useState<number>(1)
 
+  useEffect(() => {
+    localStorage.setItem('ongil-page', page)
+  }, [page])
+
+  useEffect(() => {
+    if (destination) {
+      localStorage.setItem('ongil-destination', JSON.stringify(destination))
+    } else {
+      localStorage.removeItem('ongil-destination')
+    }
+  }, [destination])
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords
+
+        setLocation({
+          lat: latitude,
+          lng: longitude,
+        })
+
+        setLocationError('')
+
+        console.log('현재 위치:', {
+          lat: latitude,
+          lng: longitude,
+        })
+      },
+      (error) => {
+        console.error('현재 위치를 가져오지 못했습니다.', error)
+
+        setLocationError(
+          '현재 위치를 확인할 수 없습니다. 위치 권한을 허용해주세요.',
+        )
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    )
+  }, [])
+
+  const goHome = () => {
+    setPage('home')
+  }
+
   const handleNavigate = (
-    page: 'bus' | 'route' | 'help' | 'guide',
+    nextPage: 'bus' | 'route' | 'help' | 'guide',
     id?: number,
   ) => {
-    if (page === 'bus') {
-      setCurrentPage('busInfo')
-    } else if (page === 'guide') {
-      if (id) setSelectedGuideId(id)
-      setCurrentPage('guide')
-    } else if (page === 'help') {
-      setCurrentPage('help')
+    if (nextPage === 'bus') {
+      setPage('busInfo')
+    } else if (nextPage === 'guide') {
+      if (id) {
+        setSelectedGuideId(id)
+      }
+
+      setPage('guide')
+    } else if (nextPage === 'help') {
+      setPage('help')
+    } else if (nextPage === 'route') {
+      setPage('route')
     }
   }
 
   const handleEndSession = () => {
-    setCurrentPage('start')
+    setDestination(null)
+    setPage('start')
+  }
+
+  if (page === 'start') {
+    return <StartPage onStart={() => setPage('home')} />
+  }
+
+  if (page === 'search') {
+    return (
+      <SearchPage
+        onBack={() => setPage('home')}
+        onHome={goHome}
+        onRoute={(selectedDestination) => {
+          setDestination(selectedDestination)
+          setPage('route')
+        }}
+      />
+    )
+  }
+
+  if (page === 'voice-search') {
+    return (
+      <VoiceSearchPage
+        onBack={() => setPage('home')}
+        onHome={goHome}
+        onRoute={(selectedDestination) => {
+          setDestination(selectedDestination)
+          setPage('route')
+        }}
+      />
+    )
+  }
+
+  if (page === 'route') {
+    if (!destination) {
+      setPage('search')
+      return null
+    }
+
+    return (
+      <RoutePage
+        destination={destination}
+        onBack={() => setPage('search')}
+        onHome={goHome}
+      />
+    )
+  }
+
+  if (page === 'help') {
+    return (
+      <HelpRequestPage
+        onNavigate={handleNavigate}
+        onEndSession={handleEndSession}
+      />
+    )
+  }
+
+  if (page === 'guide') {
+    return (
+      <HelpGuidePage
+        selectedId={selectedGuideId}
+        onNavigate={handleNavigate}
+        onEndSession={handleEndSession}
+      />
+    )
+  }
+
+  if (page === 'busInfo') {
+    return <BusInfoPage onEndSession={handleEndSession} />
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#F7F3EC] text-[#695C4A]">
-      {currentPage === 'start' && (
-        <StartPage onStart={() => setCurrentPage('help')} />
-      )}
-
-      {currentPage === 'help' && (
-        <HelpRequestPage
-          onNavigate={handleNavigate}
-          onEndSession={handleEndSession}
-        />
-      )}
-
-      {currentPage === 'guide' && (
-        <HelpGuidePage
-          selectedId={selectedGuideId}
-          onNavigate={handleNavigate}
-          onEndSession={handleEndSession}
-        />
-      )}
-
-      {currentPage === 'busInfo' && (
-        <BusInfoPage onEndSession={handleEndSession} />
-      )}
-    </div>
+    <HomePage
+      onSearch={() => setPage('search')}
+      onVoiceSearch={() => setPage('voice-search')}
+      onHelp={() => setPage('help')}
+      onEnd={handleEndSession}
+      location={location}
+      locationError={locationError}
+      onHome={goHome}
+    />
   )
 }
 

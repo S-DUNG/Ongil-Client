@@ -12,7 +12,11 @@ interface SafetyData {
   status?: string
 }
 
-function StartPage({ onStart }: { onStart: () => void }) {
+interface StartPageProps {
+  onStart: () => void
+}
+
+function StartPage({ onStart }: StartPageProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [safety, setSafety] = useState<SafetyData | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
@@ -76,15 +80,15 @@ function StartPage({ onStart }: { onStart: () => void }) {
   const getAirQualityIcon = (status?: string) => {
     switch (status) {
       case '좋음':
-        return <Smile className="w-6 h-6 text-emerald-600" />
+        return <Smile className="h-6 w-6 text-emerald-600" />
       case '보통':
-        return <Meh className="w-6 h-6 text-amber-500" />
+        return <Meh className="h-6 w-6 text-amber-500" />
       case '나쁨':
-        return <Frown className="w-6 h-6 text-orange-600" />
+        return <Frown className="h-6 w-6 text-orange-600" />
       case '매우 나쁨':
-        return <Flame className="w-6 h-6 text-red-600" />
+        return <Flame className="h-6 w-6 text-red-600" />
       default:
-        return <Smile className="w-6 h-6 text-emerald-600" />
+        return <Smile className="h-6 w-6 text-emerald-600" />
     }
   }
 
@@ -100,58 +104,65 @@ function StartPage({ onStart }: { onStart: () => void }) {
               온길
             </h1>
 
-            <p className="mt-8 text-[21px] font-semibold leading-[1.5] tracking-[-0.03em] text-[#7A6A53]">
+            <p className="mt-8 text-[21px] font-semibold leading-[1.5] tracking-[-0.03em] text-[#695C4A]">
               당신이 가는 길, 온길이 함께합니다
             </p>
           </div>
 
-          <div className="mt-12 flex w-full flex-col gap-4">
+          <div className="mt-28 flex w-full flex-col gap-4">
             <button
               type="button"
               onClick={onStart}
-              className="flex min-h-[68px] w-full items-center justify-center rounded-[24px] bg-[#FFEEA0] text-[22px] font-bold text-[#695C4A] shadow-[0_4px_14px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] active:translate-y-0 cursor-pointer border border-[#E3C37A]"
+              className="flex min-h-[72px] w-full items-center justify-center rounded-[24px] bg-[#FFEEA0] text-[#695C4A] shadow-[0_4px_14px_rgba(105,92,74,0.08)] transition hover:-translate-y-0.5 hover:bg-[#FFEEA0] hover:shadow-[0_6px_18px_rgba(105,92,74,0.12)] active:translate-y-0"
             >
-              시작하기
-              <span className="ml-3 text-2xl">→</span>
+              <span className="text-[24px] font-bold leading-none tracking-[-0.03em]">
+                시작하기
+              </span>
+              <span className="ml-3 text-[24px] font-bold leading-none">→</span>
             </button>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="min-h-[145px] rounded-[24px] bg-white border border-[#E8E2D5] p-6 text-left shadow-sm transition cursor-default flex flex-col justify-between">
+              <div className="flex min-h-[145px] flex-col justify-between rounded-[24px] border border-[#E8E2D5] bg-white p-6 text-left shadow-sm">
                 <div className="flex items-center gap-2 text-[#695C4A]">
-                  <Sun className="w-5 h-5 text-amber-500" />
+                  <Sun className="h-5 w-5 text-amber-500" />
                   <h2 className="text-lg font-bold text-[#695C4A]">
                     날씨 정보
                   </h2>
                 </div>
+
                 <div>
                   <div className="text-base font-semibold text-[#8C7A60]">
                     {weather?.description || '맑음'}
                   </div>
-                  <div className="text-3xl font-black text-[#695C4A] mt-0.5">
+
+                  <div className="mt-0.5 text-3xl font-black text-[#695C4A]">
                     {loading ? '...' : `${weather?.temperature ?? 24}°C`}
                   </div>
                 </div>
               </div>
 
-              <div className="min-h-[145px] rounded-[24px] bg-white border border-[#E8E2D5] p-6 text-left shadow-sm transition cursor-default flex flex-col justify-between">
+              <div className="flex min-h-[145px] flex-col justify-between rounded-[24px] border border-[#E8E2D5] bg-white p-6 text-left shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[#695C4A]">
                     <h2 className="text-lg font-bold text-[#695C4A]">
                       환경 및 안전
                     </h2>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-[#F7F3EC] border border-[#E8E2D5] flex items-center justify-center">
+
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8E2D5] bg-[#F7F3EC]">
                     {getAirQualityIcon(currentStatus)}
                   </div>
                 </div>
+
                 <div>
                   <div className="text-base font-semibold text-[#8C7A60]">
                     미세먼지{' '}
-                    <span className="text-[#695C4A] font-bold">
+                    <span className="font-bold text-[#695C4A]">
                       {currentStatus}
                     </span>
                   </div>
-                  <div className="text-xl font-bold text-[#695C4A] mt-0.5">
+
+                  <div className="mt-0.5 text-xl font-bold text-[#695C4A]">
                     통합지수:{' '}
                     <span className="font-black">
                       {loading ? '...' : pm10Value}

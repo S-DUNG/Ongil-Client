@@ -6,7 +6,7 @@ import SubNavbar from '../components/SubNavbar'
 interface HelpGuidePageProps {
   selectedId: number
   onNavigate: (page: 'bus' | 'route' | 'help' | 'guide', id?: number) => void
-  onEndSession?: () => void
+  onEndSession: () => void
 }
 
 const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
@@ -16,7 +16,11 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
 }) => {
   const guideDataMap: Record<
     number,
-    { title: string; steps: string[]; tip: string }
+    {
+      title: string
+      steps: string[]
+      tip: string
+    }
   > = {
     1: {
       title: '길을 찾기 어려워요 / 길을 잃었어요',
@@ -27,6 +31,7 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
       ],
       tip: '현재 계신 정류장 번호와 위치는 화면 상단에서 언제든 확인할 수 있습니다.',
     },
+
     2: {
       title: '버스 탑승 및 하차 방법이 궁금해요',
       steps: [
@@ -36,6 +41,7 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
       ],
       tip: '몸이 불편하신 경우 저상버스(휠체어 마크) 표시가 있는 버스를 이용하시면 편리합니다.',
     },
+
     4: {
       title: '스마트 패드 기기 사용 안내가 필요해요',
       steps: [
@@ -52,23 +58,20 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
   return (
     <div className="w-full min-h-screen bg-[#F7F3EC] flex flex-col items-center font-sans text-[#695C4A] pb-16 relative">
       <div className="w-full">
-        <Header />
+        <Header onHome={onEndSession} />
       </div>
 
       <SubNavbar onMenuClick={onNavigate} />
 
-      {/* 우측 상단 이용 종료 버튼 */}
-      {onEndSession && (
-        <div className="absolute top-6 right-10 z-50">
-          <button
-            type="button"
-            onClick={onEndSession}
-            className="bg-[#695C4A] hover:bg-[#524638] text-[#FFEEA0] px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-colors flex items-center gap-2 cursor-pointer border border-[#E3C37A]"
-          >
-            <span>⟲</span> 이용 종료
-          </button>
-        </div>
-      )}
+      <div className="absolute top-6 right-10 z-50">
+        <button
+          type="button"
+          onClick={onEndSession}
+          className="bg-[#695C4A] hover:bg-[#524638] text-[#FFEEA0] px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-colors flex items-center gap-2 cursor-pointer border border-[#E3C37A]"
+        >
+          <span>⟲</span> 이용 종료
+        </button>
+      </div>
 
       <main className="w-full max-w-[760px] px-6 pt-8 flex flex-col">
         <div className="mb-6">
@@ -79,9 +82,11 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
           >
             ← 이전으로 (도움 요청 선택)
           </button>
+
           <h1 className="text-[28px] font-extrabold tracking-tight text-[#695C4A] mb-1">
             맞춤형 이용 안내
           </h1>
+
           <p className="text-[15px] text-[#8C7A60]">
             선택하신 항목에 대한 상세한 이용 방법을 순서대로 안내해 드립니다.
           </p>
@@ -103,18 +108,20 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
                 <div className="w-8 h-8 rounded-full bg-[#FFEEA0] text-[#695C4A] font-bold flex items-center justify-center shrink-0 text-sm border border-[#E3C37A]">
                   {index + 1}
                 </div>
+
                 <p className="text-[16px] font-medium text-[#695C4A]">{step}</p>
               </div>
             ))}
           </div>
 
-          {/* 💡 전구 SVG 아이콘이 적용된 팁 박스 */}
           <div className="bg-[#FFFDEB] border-2 border-[#E3C37A] rounded-2xl p-5 flex items-start gap-3">
             <Lightbulb className="w-6 h-6 text-[#695C4A] shrink-0 mt-0.5" />
+
             <div>
               <h4 className="font-bold text-[#695C4A] text-base mb-1">
                 참고해 주세요!
               </h4>
+
               <p className="text-[#7A6A53] text-sm leading-relaxed">
                 {currentGuide.tip}
               </p>
@@ -130,6 +137,7 @@ const HelpGuidePage: React.FC<HelpGuidePageProps> = ({
           >
             다른 도움말 보기
           </button>
+
           <button
             type="button"
             onClick={() => onNavigate('bus')}

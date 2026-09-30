@@ -282,7 +282,7 @@ const BusInfoPage: React.FC<BusInfoPageProps> = ({ onEndSession }) => {
 
   return (
     <div className="w-full min-h-screen bg-[#F7F3EC] flex flex-col items-center pb-24 font-sans relative text-[#695C4A]">
-      <Header />
+      <Header onHome={onEndSession} />
 
       <div className="absolute top-6 right-10 z-50">
         <button
