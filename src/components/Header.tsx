@@ -278,7 +278,11 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
 
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-[#695C4A]">
-              {formattedTime}
+              미세먼지
+            </span>
+
+            <span className="text-base font-bold text-[#695C4A]">
+              {airQuality}
             </span>
           </div>
 
@@ -286,11 +290,7 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
 
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-[#695C4A]">
-              미세먼지
-            </span>
-
-            <span className="text-base font-bold text-[#695C4A]">
-              {airQuality}
+              {formattedTime}
             </span>
           </div>
         </div>
