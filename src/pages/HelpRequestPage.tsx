@@ -19,8 +19,8 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
       text: '길을 찾기 어려워요 / 길을 잃었어요',
       icon: (
         <svg
-          width="18"
-          height="18"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -36,8 +36,8 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
       text: '버스 탑승 및 하차 방법이 궁금해요',
       icon: (
         <svg
-          width="18"
-          height="18"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -55,8 +55,8 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
       text: '스마트 패드 기기 사용 안내가 필요해요',
       icon: (
         <svg
-          width="18"
-          height="18"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -75,15 +75,15 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
       <Header onHome={onBack} />
 
       <main className="w-full max-w-4xl px-6 py-8">
-        <div className="flex items-start gap-5 mb-6">
+        <div className="flex items-start gap-5 mb-8">
           <BackButton onClick={onBack} />
 
           <div>
-            <h1 className="text-3xl font-bold text-[#695C4A] mb-1.5">
+            <h1 className="text-[32px] font-extrabold text-[#695C4A] mb-2">
               무엇을 도와드릴까요?
             </h1>
 
-            <p className="text-[#8C7A60] text-sm">
+            <p className="text-[17px] font-medium text-[#8C7A60] leading-relaxed">
               궁금하시거나 불편한 사항을 선택하시면 맞춤형 안내를 제공해
               드립니다.
             </p>
@@ -91,12 +91,12 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
         </div>
 
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#E8E2D5]">
-          <div className="flex justify-between items-center mb-4 px-1 text-xs text-[#9E8B70] font-medium">
+          <div className="flex justify-between items-center mb-5 px-1 text-[15px] text-[#9E8B70] font-semibold">
             <span>도움 요청 유형 선택</span>
             <span>해당 항목을 눌러주세요</span>
           </div>
 
-          <div className="space-y-3 mb-8">
+          <div className="space-y-4 mb-8">
             {options.map((opt) => {
               const isSelected = selectedId === opt.id
 
@@ -104,10 +104,10 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
                 <div
                   key={opt.id}
                   onClick={() => setSelectedId(opt.id)}
-                  className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${
+                  className={`flex items-center justify-between p-5 rounded-2xl cursor-pointer transition-all outline-none focus:outline-none select-none ${
                     isSelected
-                      ? 'border-[#E3C37A] bg-[#FFFDEB] shadow-sm'
-                      : 'border-[#E8E2D5] bg-white hover:border-[#E3C37A]/50'
+                      ? 'bg-[#FFFDEB] shadow-[0_4px_14px_rgba(105,92,74,0.18)]'
+                      : 'bg-white shadow-[0_1px_5px_rgba(105,92,74,0.08)] hover:shadow-[0_3px_10px_rgba(105,92,74,0.12)]'
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -122,7 +122,7 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
                     </div>
 
                     <span
-                      className={`text-lg font-bold ${
+                      className={`text-[19px] font-bold leading-relaxed ${
                         isSelected ? 'text-[#695C4A]' : 'text-[#7A6A53]'
                       }`}
                     >
@@ -131,13 +131,15 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
                   </div>
 
                   <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
                       isSelected
-                        ? 'border-[#695C4A] bg-[#FFEEA0] text-[#695C4A]'
-                        : 'border-[#D5CEBF]'
+                        ? 'border-[3px] border-[#695C4A]'
+                        : 'border-2 border-[#D5CEBF]'
                     }`}
                   >
-                    {isSelected && <span className="text-xs font-bold">✓</span>}
+                    {isSelected && (
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#695C4A]" />
+                    )}
                   </div>
                 </div>
               )
@@ -148,7 +150,7 @@ const HelpRequestPage: React.FC<HelpRequestPageProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('guide', selectedId)}
-              className="w-full max-w-md py-4 bg-[#FFEEA0] text-[#695C4A] font-bold rounded-2xl text-lg hover:bg-[#FFE57A] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer border border-[#E3C37A]"
+              className="w-full max-w-md py-4 bg-[#FFEEA0] text-[#695C4A] font-bold rounded-2xl text-[18px] hover:bg-[#FFE57A] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer border border-[#E3C37A]"
             >
               이 내용으로 안내받기
             </button>

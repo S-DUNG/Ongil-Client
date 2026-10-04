@@ -118,7 +118,6 @@ function StartPage({ onStart }: StartPageProps) {
               <span className="text-[24px] font-bold leading-none tracking-[-0.03em]">
                 시작하기
               </span>
-              <span className="ml-3 text-[24px] font-bold leading-none">→</span>
             </button>
 
             <div className="grid grid-cols-2 gap-4">

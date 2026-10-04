@@ -19,6 +19,11 @@ interface WeatherResponse {
   precipitationType: string
 }
 
+interface SafetyResponse {
+  pm10?: number
+  status?: string
+}
+
 interface NearbyStation {
   stationId: string | null
   name: string
@@ -37,6 +42,16 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
 
   const [temperature, setTemperature] = useState<number | null>(null)
   const [stationName, setStationName] = useState('')
+  const [airQuality, setAirQuality] = useState('확인 중')
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     if (propLocation) {
@@ -170,6 +185,56 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
     loadWeather()
   }, [location])
 
+  useEffect(() => {
+    if (!location) {
+      return
+    }
+
+    const loadSafety = async () => {
+      try {
+        const params = new URLSearchParams({
+          lat: String(location.lat),
+          lng: String(location.lng),
+        })
+
+        const requestUrl = `/api/environment/safety?${params.toString()}`
+
+        console.log('환경 정보 요청:', requestUrl)
+
+        const response = await fetch(requestUrl)
+
+        console.log(
+          '환경 정보 응답 상태:',
+          response.status,
+          response.statusText,
+        )
+
+        if (!response.ok) {
+          throw new Error(
+            `환경 정보를 불러오지 못했습니다. (${response.status})`,
+          )
+        }
+
+        const data: SafetyResponse = await response.json()
+
+        console.log('환경 정보 응답:', data)
+
+        setAirQuality(data.status || '확인 중')
+      } catch (error) {
+        console.error('환경 정보 조회 오류:', error)
+        setAirQuality('확인 중')
+      }
+    }
+
+    loadSafety()
+  }, [location])
+
+  const formattedTime = currentTime.toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+
   return (
     <div className="w-full bg-[#F7F3EC] shadow-[0_3px_12px_rgba(105,92,74,0.07)]">
       <header className="flex w-full items-center justify-between px-6 py-5">
@@ -191,6 +256,7 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <LocationIcon size={22} />
+
             <span className="max-w-[180px] truncate text-base font-semibold text-[#695C4A]">
               {stationName || '정류장 확인 중'}
             </span>
@@ -200,10 +266,31 @@ function Header({ location: propLocation, onHome }: HeaderProps) {
 
           <div className="flex items-center gap-2">
             <WeatherIcon size={23} />
+
             <span className="text-lg font-bold text-[#695C4A]">
               {location && temperature !== null
                 ? `${Math.round(temperature)}°`
                 : '--°'}
+            </span>
+          </div>
+
+          <div className="h-6 w-px bg-[#695C4A]/15" />
+
+          <div className="flex items-center gap-2">
+            <span className="text-base font-semibold text-[#695C4A]">
+              미세먼지
+            </span>
+
+            <span className="text-base font-bold text-[#695C4A]">
+              {airQuality}
+            </span>
+          </div>
+
+          <div className="h-6 w-px bg-[#695C4A]/15" />
+
+          <div className="flex items-center gap-2">
+            <span className="text-base font-semibold text-[#695C4A]">
+              {formattedTime}
             </span>
           </div>
         </div>
