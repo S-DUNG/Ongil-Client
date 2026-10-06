@@ -121,11 +121,8 @@ function RoutePage({ destination, onBack, onHome }: RoutePageProps) {
         )
 
         if (!stationResponse.ok) {
-          throw new Error(
-            `주변 정류장을 불러오지 못했습니다. (${stationResponse.status})`,
-          )
+          throw new Error('주변 정류장을 불러오지 못했어요.')
         }
-
         const stations: NearbyStation[] = await stationResponse.json()
 
         console.log('주변 정류장 응답:', stations)
@@ -134,27 +131,32 @@ function RoutePage({ destination, onBack, onHome }: RoutePageProps) {
           throw new Error('현재 위치 주변에 정류장이 없습니다.')
         }
 
-        // 2. 가장 가까운 정류장 선택
-        const sortedStations = [...stations].sort(
+        // 2. 스마트패드가 등록된 정류장만 출발 정류장으로 사용
+        const availableStations = stations.filter(
+          (station) => station.manageStationId !== null,
+        )
+
+        if (availableStations.length === 0) {
+          throw new Error('현재 위치 주변에 이용 가능한 정류장이 없습니다.')
+        }
+
+        // 등록된 정류장 중 가장 가까운 정류장 선택
+        const sortedStations = [...availableStations].sort(
           (a, b) => a.distanceMeters - b.distanceMeters,
         )
 
         const nearestStation = sortedStations[0]
 
         if (!nearestStation) {
-          throw new Error('가까운 정류장을 찾을 수 없습니다.')
+          throw new Error('이용 가능한 가까운 정류장을 찾을 수 없습니다.')
         }
 
-        console.log('가장 가까운 정류장:', nearestStation)
+        console.log('가장 가까운 등록 정류장:', nearestStation)
         console.log('stationId:', nearestStation.stationId)
         console.log('manageStationId:', nearestStation.manageStationId)
         console.log('TAGO nodeId:', nearestStation.tagoNodeId)
 
-        // routes API는 stationId가 아니라 manageStationId를 originId로 사용
-        if (nearestStation.manageStationId === null) {
-          throw new Error('출발 정류장의 관리 정류장 ID를 확인할 수 없습니다.')
-        }
-
+        setStationName(nearestStation.name)
         setStationName(nearestStation.name)
 
         // 3. 경로 조회
@@ -182,9 +184,7 @@ function RoutePage({ destination, onBack, onHome }: RoutePageProps) {
         console.log('경로 API 응답 내용:', responseText)
 
         if (!routeResponse.ok) {
-          throw new Error(
-            `경로를 불러오지 못했습니다. (${routeResponse.status})`,
-          )
+          throw new Error('경로를 불러오지 못했어요.')
         }
 
         let routeData: RouteResponse
