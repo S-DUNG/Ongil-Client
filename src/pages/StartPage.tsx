@@ -49,6 +49,7 @@ function StartPage({ onStart }: StartPageProps) {
         const weatherData = await weatherRes.json()
 
         console.log('날씨 정보:', weatherData)
+
         setWeather(weatherData)
 
         const safetyRes = await fetch(
@@ -66,6 +67,7 @@ function StartPage({ onStart }: StartPageProps) {
         const safetyData = await safetyRes.json()
 
         console.log('환경 및 안전 정보:', safetyData)
+
         setSafety(safetyData)
       } catch (error) {
         console.error('환경 정보를 불러오지 못했습니다:', error)
@@ -81,12 +83,16 @@ function StartPage({ onStart }: StartPageProps) {
     switch (status) {
       case '좋음':
         return <Smile className="h-6 w-6 text-emerald-600" />
+
       case '보통':
         return <Meh className="h-6 w-6 text-amber-500" />
+
       case '나쁨':
         return <Frown className="h-6 w-6 text-orange-600" />
+
       case '매우 나쁨':
         return <Flame className="h-6 w-6 text-red-600" />
+
       default:
         return <Smile className="h-6 w-6 text-emerald-600" />
     }
@@ -96,7 +102,7 @@ function StartPage({ onStart }: StartPageProps) {
   const pm10Value = safety?.pm10 ?? 15
 
   return (
-    <main className="min-h-screen bg-[#F7F3EC] text-[#695C4A] font-sans">
+    <main className="min-h-screen bg-[#F7F3EC] font-sans text-[#695C4A]">
       <div className="mx-auto flex min-h-screen w-full max-w-[760px] flex-col">
         <section className="flex flex-1 flex-col items-center justify-center px-6 pb-16">
           <div className="text-center">
@@ -109,7 +115,8 @@ function StartPage({ onStart }: StartPageProps) {
             </p>
           </div>
 
-          <div className="mt-28 flex w-full flex-col gap-4">
+          {/* 문구와 시작 버튼 사이 간격 */}
+          <div className="mt-12 flex w-full flex-col gap-4">
             <button
               type="button"
               onClick={onStart}
@@ -118,12 +125,15 @@ function StartPage({ onStart }: StartPageProps) {
               <span className="text-[24px] font-bold leading-none tracking-[-0.03em]">
                 시작하기
               </span>
+
+              <span className="ml-3 text-[24px] font-bold leading-none">→</span>
             </button>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex min-h-[145px] flex-col justify-between rounded-[24px] border border-[#E8E2D5] bg-white p-6 text-left shadow-sm">
                 <div className="flex items-center gap-2 text-[#695C4A]">
                   <Sun className="h-5 w-5 text-amber-500" />
+
                   <h2 className="text-lg font-bold text-[#695C4A]">
                     날씨 정보
                   </h2>
